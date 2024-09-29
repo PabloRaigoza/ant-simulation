@@ -16,7 +16,7 @@ public class AntsMovement : MonoBehaviour
     private List<Vector3> vertices;
     private List<(Vector3, Vector3)> edges;
 
-    private float timeInterval = 0.25Sf; // Time interval in seconds
+    private float timeInterval = 0.25f; // Time interval in seconds
     private float timer = 0f;
 
     void Start()
