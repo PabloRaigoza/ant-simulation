@@ -2,19 +2,39 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// The idea: Once an ant particle collides with a food, change color to green and add attribute that it is carrying food
+// movement of green particles are back towards the nest, once it collides with the nest, remove the particle
+// If the ant particle collides with a killer, change color to red and remove the particle
+
 public class AntsMovement : MonoBehaviour
 {
     public ParticleSystem ps;
+    public GameObject nest;
+
+    private List<GameObject> foods = new List<GameObject>();
 
     void Update()
     {
         ParticleSystem.Particle[] particles = new ParticleSystem.Particle[ps.main.maxParticles];
         int numParticlesAlive = ps.GetParticles(particles);
 
+
         for (int i = 0; i < numParticlesAlive; i++)
         {
-            // Move particles in a random direction on the plan
-            particles[i].position += new Vector3(Random.Range(-0.0f, 1.0f), 0, Random.Range(-10.0f, 10.0f)) * Time.deltaTime + new Vector3(0.75f, 0, 0) * Time.deltaTime;
+            Vector3 vRand = new Vector3(Random.Range(-10.0f, 10.0f), 0, Random.Range(-10.0f, 10.0f));
+            if (particles[i].startColor == Color.green)
+            {
+                // Move particles towards the nest
+                Vector3 vNest = nest.transform.position - particles[i].position;
+                particles[i].position += 5 * (vNest + vRand).normalized * Time.deltaTime;
+            }
+            else
+            {
+                // move to nearest food 
+                Vector3 vFood = foods.Count > 0 ? (foods[0].transform.position - particles[i].position).normalized : new Vector3(0, 0, 0);
+                particles[i].position += 10 * (vFood + vRand).normalized * Time.deltaTime;
+
+            }
         }
 
         ps.SetParticles(particles, numParticlesAlive);
@@ -22,35 +42,72 @@ public class AntsMovement : MonoBehaviour
 
     void OnParticleCollision(GameObject other)
     {
-        // If the particle collides with the ground, change its color to red
+        ParticleSystem.Particle[] particles = new ParticleSystem.Particle[ps.main.maxParticles];
+        int numParticlesAlive = ps.GetParticles(particles);
+
+        List<ParticleCollisionEvent> collisionEvents = new List<ParticleCollisionEvent>();
+        int numCollisionEvents = ps.GetCollisionEvents(other, collisionEvents);
+
+        // find index of the particle that collided
+        int collisionIdx = -1;
+        for (int i = 0; i < numCollisionEvents; i++)
+        {
+            ParticleCollisionEvent collisionEvent = collisionEvents[i];
+            for (int j = 0; j < numParticlesAlive; j++)
+            {
+                if (Vector3.Distance(particles[j].position, collisionEvent.intersection) < 0.2f)
+                {
+                    collisionIdx = j;
+                    break;
+                }
+            }
+        }
+
+        if (collisionIdx == -1)
+        {
+            return;
+        }
+
+        // update particle and collision object according to other's tag
         if (other.tag == "Food")
         {
             other.transform.localScale *= 0.95f;
+            particles[collisionIdx].startColor = Color.green;
+
+            // if food less than 0.1f, remove it.
+            // Otherwise if it is not in the list, add it
+            if (other.transform.localScale.x < 0.1f)
+            {
+                foods.Remove(other);
+                other.SetActive(false);
+            }
+            else if (!foods.Contains(other))
+            {
+                foods.Add(other);
+            }
+        }
+        else if (other.tag == "Nest")
+        {
+            particles[collisionIdx].remainingLifetime = 0;
         }
         else if (other.tag == "Killer")
         {
-            ParticleSystem.Particle[] particles = new ParticleSystem.Particle[ps.main.maxParticles];
-            int numParticlesAlive = ps.GetParticles(particles);
-
-            List<ParticleCollisionEvent> collisionEvents = new List<ParticleCollisionEvent>();
-            int numCollisionEvents = ps.GetCollisionEvents(other, collisionEvents);
-
-            for (int i = 0; i < numCollisionEvents; i++)
-            {
-                ParticleCollisionEvent collisionEvent = collisionEvents[i];
-                for (int j = 0; j < numParticlesAlive; j++)
-                {
-                    if (Vector3.Distance(particles[j].position, collisionEvent.intersection) < 0.1f)
-                    {
-                        particles[j].startColor = Color.red;
-                        break;
-                    }
-                }
-            }
-
-            ps.SetParticles(particles, numParticlesAlive);
+            particles[collisionIdx].startColor = Color.red;
+            particles[collisionIdx].remainingLifetime = 0.5f;
         }
+
+        ps.SetParticles(particles, numParticlesAlive);
+
+        SortFoodPositionsByDistanceToNest();
     }
 
+    void SortFoodPositionsByDistanceToNest()
+    {
+        foods.Sort((pos1, pos2) =>
+        {
+            float distanceToNest1 = Vector3.Distance(pos1.transform.position, nest.transform.position);
+            float distanceToNest2 = Vector3.Distance(pos2.transform.position, nest.transform.position);
+            return distanceToNest1.CompareTo(distanceToNest2);
+        });
+    }
 }
-

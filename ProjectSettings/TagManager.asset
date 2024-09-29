@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Food
   - Killer
+  - Nest
   layers:
   - Default
   - TransparentFX
