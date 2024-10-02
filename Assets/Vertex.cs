@@ -4,9 +4,15 @@ using System.Collections;
 
 public class Vertex
 {
-    public Vector3 position;
-    public List<Vertex> neighbors;
+    private Vector3 position;
+    private List<Vertex> neighbors;
+    private double foodSmell;
+    private double pheromoneSmell;
+    private double nestSmell;
+    private double dangerSmell;
 
+
+    // getters and setters
     public Vertex(Vector3 position)
     {
         this.position = position;
@@ -32,5 +38,35 @@ public class Vertex
         {
             neighbors.Remove(neighbor);
         }
+    }
+
+    public double GetFoodSmell()
+    {
+        return foodSmell;
+    }
+
+    public void SetFoodSmell(double foodSmell)
+    {
+        this.foodSmell = foodSmell;
+    }
+
+    public double GetPheromoneSmell()
+    {
+        return pheromoneSmell;
+    }
+
+    public void SetPheromoneSmell(double pheromoneSmell)
+    {
+        this.pheromoneSmell = pheromoneSmell;
+    }
+
+    public double GetNestSmell()
+    {
+        return nestSmell;
+    }
+
+    public void SetNestSmell(double nestSmell)
+    {
+        this.nestSmell = nestSmell;
     }
 }

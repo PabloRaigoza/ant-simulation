@@ -11,7 +11,6 @@ public class AntsMovement : MonoBehaviour
     public ParticleSystem ps;
     public GameObject nest;
     public Mesh worldMesh;
-
     private List<GameObject> foods = new List<GameObject>();
     private List<Vector3> vertices;
     private List<(Vector3, Vector3)> edges;
