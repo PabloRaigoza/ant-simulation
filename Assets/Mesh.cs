@@ -20,7 +20,7 @@ public class OurMesh
         numVertInCol = numCols;
         transform = new Transform();
         transform.position = mesh.bounds.center;
-        
+
     }
 
     // helper to convert Vec3 vertices to Vertex objects
@@ -43,66 +43,33 @@ public class OurMesh
     // Find the nearest vertex to a given position
     public Vertex GetNearestVertex(Vector3 position)
     {
-        // convert position into polar coordinates
-        float phi = Mathf.Atan2(position.z, position.x);
-        float theta = Mathf.Acos(position.y / position.magnitude);
+        Vertex nearestVertex = null;
+        float minDistance = float.MaxValue;
 
-        // convert polar coordinates into mesh coordinates
-        float ySegment = theta / Mathf.PI;
-        float xSegment = phi / (2 * Mathf.PI);
+        foreach (Vertex vertex in vertices)
+        {
+            float distance = Vector3.Distance(vertex.GetPosition(), position);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                nearestVertex = vertex;
+            }
+        }
 
-        // Get nearest indices
-        int xIndex = Mathf.RoundToInt(xSegment * (numVertInRow - 1));
-        int yIndex = Mathf.RoundToInt(ySegment * (numVertInCol - 1));
-
-        // Clamp indices to valid range
-        xIndex = Mathf.Clamp(xIndex, 0, numVertInRow - 1);
-        yIndex = Mathf.Clamp(yIndex, 0, numVertInCol - 1);
-
-        // Calculate vertex index
-        int vertexIndex = yIndex * numVertInRow + xIndex;
-
-        return vertices[vertexIndex];
+        return nearestVertex;
     }
 
     // Query neighbors of a vertex at a specific position
     public List<Vertex> GetNeighbors(Vertex vertex)
     {
+        // loop through all vertices and find nearest vertex
+        Vertex nearestV = GetNearestVertex(vertex.GetPosition());
         List<Vertex> neighbors = new List<Vertex>();
-
-        // Get the index of the vertex
-        int vertexIndex = vertices.IndexOf(vertex);
-
-        // Get the row and column of the vertex
-        int row = vertexIndex / numVertInRow;
-        int col = vertexIndex % numVertInRow;
-
-        // Check all 8 neighbors
-        for (int i = -1; i <= 1; i++)
-        {
-            for (int j = -1; j <= 1; j++)
-            {
-                // Skip the vertex itself
-                if (i == 0 && j == 0) continue;
-
-                // Calculate the neighbor's row and column
-                int neighborRow = row + i;
-                int neighborCol = col + j;
-
-                // Check if the neighbor is within bounds
-                if (neighborRow >= 0 && neighborRow < numVertInCol &&
-                    neighborCol >= 0 && neighborCol < numVertInRow)
-                {
-                    // Calculate the neighbor's index
-                    int neighborIndex = neighborRow * numVertInRow + neighborCol;
-
-                    // Add the neighbor to the list
-                    neighbors.Add(vertices[neighborIndex]);
-                }
-            }
-        }
+        neighbors.Add(nearestV);
+        neighbors.Add(vertex);
 
         return neighbors;
+
     }
 
     // Debugging: Visualize the mesh by drawing lines between connected vertices

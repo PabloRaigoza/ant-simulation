@@ -15,8 +15,8 @@ public class Vertex
 
     public Vertex(Vector3 vert3)
     {
-        this.transform = new Transform();
-        this.transform.position = vert3;
+        transform = new Transform();
+        transform.position = vert3;
 
         foodSmell = 0;
         pheromoneSmell = 0;
