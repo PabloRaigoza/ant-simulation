@@ -1,0 +1,29 @@
+﻿<Properties DisableMonoRequiredInfoBar="True" StartupConfiguration="{497346E4-13A5-5032-FFC6-7BE84E056624}|">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/AntAlgorithm/AntAlgorithm.cs">
+    <Files>
+      <File FileName="../../../Downloads/Hilly World/Assets/TerrainGenerator.cs" Line="132" Column="5" />
+      <File FileName="Assets/AntAlgorithm/AntAlgorithm.cs" Line="1" Column="1" />
+      <File FileName="Assets/triangleMeshPlane.cs" Line="4" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="ant-simulation" expanded="True" selected="True" />
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
+      </Pad>
+      <Pad Id="MonoDevelop.UnitTesting.TestPad">
+        <State name="__root__">
+          <Node name="Unity" selected="True" />
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="3851c21f-159e-4ef7-a1cb-fddd0226d39a" />
+</Properties>
