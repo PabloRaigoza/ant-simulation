@@ -42,9 +42,7 @@ public class AntAlgorithm : MonoBehaviour
 
     void Start()
     {
-        mesh = new OurMesh(terrain.GetComponent<MeshFilter>().mesh,
-         terrain.GetComponent<TerrainGenerator>().numLat,
-         terrain.GetComponent<TerrainGenerator>().numLong);
+        mesh = new OurMesh(terrain.GetComponent<MeshFilter>().mesh);
 
         mode = Mode.Explore;
         // currentPos = nest.GetComponent<Vertex>();
@@ -137,6 +135,7 @@ public class AntAlgorithm : MonoBehaviour
 
     void Update()
     {
+        Debug.Log("Current: " + currentPos.GetPosition());
         neighbors = mesh.GetNeighbors(currentPos);
         target = ChooseTarget();
         Debug.Log("Target: " + target.GetPosition());

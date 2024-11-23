@@ -15,9 +15,7 @@ public class AntsMovement : MonoBehaviour
 
     void Start()
     {
-        mesh = new OurMesh(Terrain.GetComponent<MeshFilter>().mesh,
-         Terrain.GetComponent<TerrainGenerator>().numLat,
-         Terrain.GetComponent<TerrainGenerator>().numLong);
+        mesh = new OurMesh(Terrain.GetComponent<MeshFilter>().mesh);
 
         // create the particle system
         ps = GetComponent<ParticleSystem>();
