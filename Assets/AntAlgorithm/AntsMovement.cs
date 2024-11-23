@@ -43,12 +43,12 @@ public class AntsMovement : MonoBehaviour
 
             // find neighbors of nearest vertex
             List<Vertex> neighbors = mesh.GetNeighbors(nearestVertex);
-            
+
             // randomly choose a neighbor
             Vertex target = neighbors[Random.Range(0, neighbors.Count)];
 
             // move particle towards target
-            Vector3 targetPos = target.transform.position;
+            Vector3 targetPos = target.transform.position + mesh.transform.position;
             Vector3 vTarget = targetPos - particlePos;
             particles[i].position += vTarget;
 

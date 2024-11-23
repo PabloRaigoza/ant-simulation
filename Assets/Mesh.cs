@@ -10,6 +10,7 @@ public class OurMesh
     private List<Vertex> vertices;
     private int numVertInRow; // # verts on row
     private int numVertInCol; // # verts on col
+    public Transform transform;
 
     public OurMesh(Mesh mesh, int numRows, int numCols)
     {
@@ -17,6 +18,9 @@ public class OurMesh
         vertices = CreateVertices(mesh.vertices);
         numVertInRow = numRows;
         numVertInCol = numCols;
+        transform = new Transform();
+        transform.position = mesh.bounds.center;
+        
     }
 
     // helper to convert Vec3 vertices to Vertex objects
