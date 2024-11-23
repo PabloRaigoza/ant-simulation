@@ -13,11 +13,23 @@ public class Vertex
     private bool hasFood; // Indicates if this vertex contains food
     private const double pheromoneDecayRate = 0.01; // How quickly pheromones decay per tick
 
+    public Vertex(Vector3 vert3)
+    {
+        this.transform = new Transform();
+        this.transform.position = vert3;
+
+        foodSmell = 0;
+        pheromoneSmell = 0;
+        nestSmell = 0;
+        dangerSmell = 0;
+        hasFood = false;
+    }
+
     // Constructor
     public Vertex(Transform transform)
     {
         this.transform = transform;
-        neighbors = new List<Vertex>();
+        // neighbors = new List<Vertex>();
         foodSmell = 0;
         pheromoneSmell = 0;
         nestSmell = 0;
@@ -26,26 +38,26 @@ public class Vertex
     }
 
     // Getters and Setters
-    public List<Vertex> GetNeighbors()
-    {
-        return neighbors;
-    }
+    // public List<Vertex> GetNeighbors()
+    // {
+    //     return neighbors;
+    // }
 
-    public void AddNeighbor(Vertex neighbor)
-    {
-        if (!neighbors.Contains(neighbor))
-        {
-            neighbors.Add(neighbor);
-        }
-    }
+    // public void AddNeighbor(Vertex neighbor)
+    // {
+    //     if (!neighbors.Contains(neighbor))
+    //     {
+    //         neighbors.Add(neighbor);
+    //     }
+    // }
 
-    public void RemoveNeighbor(Vertex neighbor)
-    {
-        if (neighbors.Contains(neighbor))
-        {
-            neighbors.Remove(neighbor);
-        }
-    }
+    // public void RemoveNeighbor(Vertex neighbor)
+    // {
+    //     if (neighbors.Contains(neighbor))
+    //     {
+    //         neighbors.Remove(neighbor);
+    //     }
+    // }
 
     public double GetFoodSmell()
     {

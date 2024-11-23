@@ -5,9 +5,9 @@ using UnityEngine;
 public class TerrainGenerator : MonoBehaviour
 {
     // Mesh Sizes
-    [SerializeField] int radius = 10;
-    [SerializeField] int numLat = 10;
-    [SerializeField] int numLong = 10;
+    [SerializeField] public int radius = 10;
+    [SerializeField] public int numLat = 10;
+    [SerializeField] public int numLong = 10;
 
     // Perlin noise parameters
     [SerializeField] int perlinOctave = 1;
@@ -161,7 +161,6 @@ public class TerrainGenerator : MonoBehaviour
             maxR = Mathf.Max(maxR, r);
         }
 
-        Debug.Log("minR: " + minR + " maxR: " + maxR);
         mat.SetFloat("minTerrainRadius", minR);
         mat.SetFloat("maxTerrainRadius", maxR);
 

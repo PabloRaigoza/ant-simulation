@@ -31,12 +31,20 @@ public class AntAlgorithm : MonoBehaviour
     public GameObject nest;
     public Vertex currentPos;
     public List<Vertex> neighbors;
+    public OurMesh mesh;
     private Mode mode;
     private bool isWalking = false;
     private float speed = 5.0f;
     private bool hasFood = false; // Indicates if the ant is carrying food
 
     private Vertex target;
+
+    void Start()
+    {
+        mode = Mode.Explore;
+        currentPos = nest.GetComponent<Vertex>();
+        neighbors = mesh.GetNeighbors(currentPos);
+    }
 
     private Vertex ChooseTarget()
     {
@@ -125,7 +133,7 @@ public class AntAlgorithm : MonoBehaviour
     {
         if (!isWalking)
         {
-            neighbors = currentPos.GetNeighbors();
+            neighbors = mesh.GetNeighbors(currentPos);
             target = ChooseTarget();
             isWalking = true;
         }

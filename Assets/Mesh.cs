@@ -1,22 +1,33 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/*
+    Class that wraps around a Unity Mesh object
+    Provides additional functionality for mesh manipulation
+*/
 public class OurMesh
 {
     private List<Vertex> vertices;
+    private int numVertInRow; // # verts on row
+    private int numVertInCol; // # verts on col
 
-    public OurMesh()
+    public OurMesh(Mesh mesh, int numRows, int numCols)
     {
-        vertices = new List<Vertex>();
+
+        vertices = CreateVertices(mesh.vertices);
+        numVertInRow = numRows;
+        numVertInCol = numCols;
     }
 
-    // Add a vertex to the mesh
-    public void AddVertex(Vertex vertex)
+    // helper to convert Vec3 vertices to Vertex objects
+    private List<Vertex> CreateVertices(Vector3[] Vec3Vertices)
     {
-        if (!vertices.Contains(vertex))
+        List<Vertex> vertices = new List<Vertex>();
+        foreach (Vector3 vertex in Vec3Vertices)
         {
-            vertices.Add(vertex);
+            vertices.Add(new Vertex(vertex));
         }
+        return vertices;
     }
 
     // Get all vertices
@@ -28,29 +39,66 @@ public class OurMesh
     // Find the nearest vertex to a given position
     public Vertex GetNearestVertex(Vector3 position)
     {
-        Vertex nearest = null;
-        float minDistance = float.MaxValue;
+        // convert position into polar coordinates
+        float phi = Mathf.Atan2(position.z, position.x);
+        float theta = Mathf.Acos(position.y / position.magnitude);
 
-        foreach (Vertex vertex in vertices)
-        {
-            float distance = Vector3.Distance(position, vertex.GetPosition());
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-                nearest = vertex;
-            }
-        }
-        return nearest;
+        // convert polar coordinates into mesh coordinates
+        float ySegment = theta / Mathf.PI;
+        float xSegment = phi / (2 * Mathf.PI);
+
+        // Get nearest indices
+        int xIndex = Mathf.RoundToInt(xSegment * (numVertInRow - 1));
+        int yIndex = Mathf.RoundToInt(ySegment * (numVertInCol - 1));
+
+        // Clamp indices to valid range
+        xIndex = Mathf.Clamp(xIndex, 0, numVertInRow - 1);
+        yIndex = Mathf.Clamp(yIndex, 0, numVertInCol - 1);
+
+        // Calculate vertex index
+        int vertexIndex = yIndex * numVertInRow + xIndex;
+
+        return vertices[vertexIndex];
     }
 
     // Query neighbors of a vertex at a specific position
     public List<Vertex> GetNeighbors(Vertex vertex)
     {
-        if (vertex != null)
+        List<Vertex> neighbors = new List<Vertex>();
+
+        // Get the index of the vertex
+        int vertexIndex = vertices.IndexOf(vertex);
+
+        // Get the row and column of the vertex
+        int row = vertexIndex / numVertInRow;
+        int col = vertexIndex % numVertInRow;
+
+        // Check all 8 neighbors
+        for (int i = -1; i <= 1; i++)
         {
-            return vertex.GetNeighbors();
+            for (int j = -1; j <= 1; j++)
+            {
+                // Skip the vertex itself
+                if (i == 0 && j == 0) continue;
+
+                // Calculate the neighbor's row and column
+                int neighborRow = row + i;
+                int neighborCol = col + j;
+
+                // Check if the neighbor is within bounds
+                if (neighborRow >= 0 && neighborRow < numVertInCol &&
+                    neighborCol >= 0 && neighborCol < numVertInRow)
+                {
+                    // Calculate the neighbor's index
+                    int neighborIndex = neighborRow * numVertInRow + neighborCol;
+
+                    // Add the neighbor to the list
+                    neighbors.Add(vertices[neighborIndex]);
+                }
+            }
         }
-        return new List<Vertex>();
+
+        return neighbors;
     }
 
     // Debugging: Visualize the mesh by drawing lines between connected vertices
@@ -58,7 +106,7 @@ public class OurMesh
     {
         foreach (Vertex vertex in vertices)
         {
-            foreach (Vertex neighbor in vertex.GetNeighbors())
+            foreach (Vertex neighbor in GetNeighbors(vertex))
             {
                 Debug.DrawLine(vertex.GetPosition(), neighbor.GetPosition(), color);
             }
