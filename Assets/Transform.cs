@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class Transform
 {
-    private Vector3 position;
-    private Quaternion rotation;
-    private Vector3 scale;
+    public Vector3 position;
+    public Quaternion rotation;
+    public Vector3 scale;
 
     // Constructor
-    public CustomTransform()
+    public void CustomTransform()
     {
         position = Vector3.zero;
         rotation = Quaternion.identity;

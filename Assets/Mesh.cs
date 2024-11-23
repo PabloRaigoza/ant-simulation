@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class Mesh
+public class OurMesh
 {
     private List<Vertex> vertices;
 
-    public Mesh()
+    public OurMesh()
     {
         vertices = new List<Vertex>();
     }
