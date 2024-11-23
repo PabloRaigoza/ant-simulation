@@ -5,9 +5,11 @@ using UnityEngine;
 public class TerrainGenerator : MonoBehaviour
 {
     // Mesh Sizes
-    [SerializeField] public int radius = 10;
-    [SerializeField] public int numLat = 10;
-    [SerializeField] public int numLong = 10;
+    [SerializeField] int radius = 10;
+    [SerializeField] float majorRadius = 10;
+    [SerializeField] float minorRadius = 5;
+    [SerializeField] int numLat = 10;
+    [SerializeField] int numLong = 10;
 
     // Perlin noise parameters
     [SerializeField] int perlinOctave = 1;
@@ -25,6 +27,9 @@ public class TerrainGenerator : MonoBehaviour
     private MeshRenderer meshRenderer;
     private MeshCollider meshCollider;
     private Mesh mesh;
+    private Vector3[] vertices; // Store vertices
+    private Dictionary<Vector3Int, List<int>> spatialHash; // Spatial hash table
+    private float cellSize = 3f;
 
 
     void Start() { }
@@ -34,25 +39,39 @@ public class TerrainGenerator : MonoBehaviour
     public void GenerateTerrain()
     {
         CreateMeshObject();
-        GenerateMesh();
+        // GenerateMesh();
+        GenerateTorus();
         GenerateTexture();
+        BuildSpatialHash();
+
+        // Select random point on the mesh
+        Vector3 randomPoint = vertices[Random.Range(0, vertices.Length)];
+        List<Vector3> nearestVertices = FindKNearestVertices(randomPoint, 5);
+
+        // Render the point
+        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        sphere.transform.position = randomPoint;
+        sphere.transform.localScale = new Vector3(2, 2, 2);
+
+        // Print the nearest vertices
+        Debug.Log("Nearest vertices to " + randomPoint[0] + ", " + randomPoint[1] + ", " + randomPoint[2] + ":");
+        Debug.Log("=====================================");
+        Debug.Log("Length: " + nearestVertices.Count);
+        int i = 1;
+        foreach (Vector3 vertex in nearestVertices) {
+            Debug.Log("Vertex " + i + ": " + vertex[0] + ", " + vertex[1] + ", " + vertex[2]);
+            GameObject sphere2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            sphere2.transform.position = vertex;
+            sphere2.transform.localScale = new Vector3(1, 1, 1);
+        }
     }
 
     private void CreateMeshObject()
     {
         // If mesh components are not present, create them
-        if (GetComponent<MeshFilter>() == null)
-        {
-            meshFilter = gameObject.AddComponent<MeshFilter>();
-        }
-        if (GetComponent<MeshRenderer>() == null)
-        {
-            meshRenderer = gameObject.AddComponent<MeshRenderer>();
-        }
-        if (GetComponent<MeshCollider>() == null)
-        {
-            meshCollider = gameObject.AddComponent<MeshCollider>();
-        }
+        if (GetComponent<MeshFilter>() == null) meshFilter = gameObject.AddComponent<MeshFilter>();
+        if (GetComponent<MeshRenderer>() == null) meshRenderer = gameObject.AddComponent<MeshRenderer>();
+        if (GetComponent<MeshCollider>() == null) meshCollider = gameObject.AddComponent<MeshCollider>();
 
         meshFilter = GetComponent<MeshFilter>();
         meshRenderer = GetComponent<MeshRenderer>();
@@ -137,6 +156,67 @@ public class TerrainGenerator : MonoBehaviour
 
     }
 
+    private void GenerateTorus()
+    {
+        int radialSegments = 32; // Number of segments around the torus' ring
+        int tubularSegments = 16; // Number of segments around the tube
+        // float majorRadius = 10f; // Distance from the center of the torus to the center of the tube
+        // float minorRadius = 5f; // Radius of the tube
+
+
+        mesh = new Mesh();
+        vertices = new Vector3[(radialSegments + 1) * (tubularSegments + 1)];
+        int[] triangles = new int[radialSegments * tubularSegments * 6];
+        Vector2[] uvs = new Vector2[vertices.Length];
+
+        int vertIndex = 0;
+        int triIndex = 0;
+
+        for (int i = 0; i <= radialSegments; i++)
+        {
+            float theta = (float)i / radialSegments * Mathf.PI * 2f;
+            Vector3 circleCenter = new Vector3(Mathf.Cos(theta) * majorRadius, 0, Mathf.Sin(theta) * majorRadius);
+
+            for (int j = 0; j <= tubularSegments; j++)
+            {
+                float phi = (float)j / tubularSegments * Mathf.PI * 2f;
+                float x = Mathf.Cos(phi) * minorRadius;
+                float y = Mathf.Sin(phi) * minorRadius;
+                Vector3 offset = new Vector3(Mathf.Cos(theta) * x, y, Mathf.Sin(theta) * x);
+
+                vertices[vertIndex] = circleCenter + offset;
+                uvs[vertIndex] = new Vector2((float)i / radialSegments, (float)j / tubularSegments);
+                vertIndex++;
+            }
+        }
+
+        for (int i = 0; i < radialSegments; i++)
+        {
+            for (int j = 0; j < tubularSegments; j++)
+            {
+                int a = (i * (tubularSegments + 1)) + j;
+                int b = a + tubularSegments + 1;
+                int c = a + 1;
+                int d = b + 1;
+
+                triangles[triIndex++] = a;
+                triangles[triIndex++] = c;
+                triangles[triIndex++] = b;
+
+                triangles[triIndex++] = c;
+                triangles[triIndex++] = d;
+                triangles[triIndex++] = b;
+            }
+        }
+
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.uv = uvs;
+        mesh.RecalculateNormals();
+
+        GetComponent<MeshFilter>().mesh = mesh;
+    }
+
     private static float PerlinNoise3D(float x, float y, float z)
     {
         float xy = Mathf.Sin(Mathf.PI * Mathf.PerlinNoise(x, y));
@@ -161,6 +241,7 @@ public class TerrainGenerator : MonoBehaviour
             maxR = Mathf.Max(maxR, r);
         }
 
+        Debug.Log("minR: " + minR + " maxR: " + maxR);
         mat.SetFloat("minTerrainRadius", minR);
         mat.SetFloat("maxTerrainRadius", maxR);
 
@@ -186,6 +267,94 @@ public class TerrainGenerator : MonoBehaviour
         }
         textures.Apply();
         mat.SetTexture("terrainTextures", textures);
+    }
+
+    void BuildSpatialHash()
+    {
+        // Compute suitable cell size
+        float nearestDistanceSum = 0;
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            float nearestDistance = float.MaxValue;
+            for (int j = 0; j < vertices.Length; j++)
+            {
+                if (i == j) continue;
+                float distance = Vector3.Distance(vertices[i], vertices[j]);
+                nearestDistance = Mathf.Min(nearestDistance, distance);
+            }
+            nearestDistanceSum += nearestDistance;
+        }
+        cellSize = nearestDistanceSum / vertices.Length;
+        cellSize *= 3;
+
+        spatialHash = new Dictionary<Vector3Int, List<int>>();
+
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            Vector3Int cell = WorldToCell(vertices[i]);
+            if (!spatialHash.ContainsKey(cell))
+            {
+                spatialHash[cell] = new List<int>();
+            }
+            spatialHash[cell].Add(i);
+        }
+    }
+
+    Vector3Int WorldToCell(Vector3 point)
+    {
+        return new Vector3Int(
+            Mathf.FloorToInt(point.x / cellSize),
+            Mathf.FloorToInt(point.y / cellSize),
+            Mathf.FloorToInt(point.z / cellSize)
+        );
+    }
+
+    /// <summary>
+    /// Finds the k-nearest vertices to a given point using spatial hashing.
+    /// </summary>
+    /// <param name="point">The point to search from.</param>
+    /// <param name="k">The number of nearest vertices to find.</param>
+    /// <returns>A list of the k-nearest vertices.</returns>
+    public List<Vector3> FindKNearestVertices(Vector3 point, int k)
+    {
+        Vector3Int cell = WorldToCell(point);
+        List<int> candidateIndices = new List<int>();
+
+        // Check nearby cells within a 1-cell radius
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                for (int z = -1; z <= 1; z++)
+                {
+                    Vector3Int neighborCell = cell + new Vector3Int(x, y, z);
+                    if (spatialHash.ContainsKey(neighborCell))
+                    {
+                        candidateIndices.AddRange(spatialHash[neighborCell]);
+                    }
+                }
+            }
+        }
+
+        // Calculate distances to the candidate vertices
+        List<(float, Vector3)> distances = new List<(float, Vector3)>();
+        foreach (int index in candidateIndices)
+        {
+            float distance = Vector3.Distance(point, vertices[index]);
+            distances.Add((distance, vertices[index]));
+        }
+
+        // Sort and return the k-nearest vertices
+        distances.Sort((a, b) => a.Item1.CompareTo(b.Item1));
+        List<Vector3> nearestVertices = new List<Vector3>();
+
+        for (int i = 0; i < Mathf.Min(k+1, distances.Count); i++)
+        {
+            if (i == 0) continue;
+            nearestVertices.Add(distances[i].Item2);
+        }
+
+        return nearestVertices;
     }
 
 
