@@ -57,12 +57,15 @@ public class TerrainGenerator : MonoBehaviour
         // If mesh components are not present, create them
         if (GetComponent<MeshFilter>() == null) meshFilter = gameObject.AddComponent<MeshFilter>();
         if (GetComponent<MeshRenderer>() == null) meshRenderer = gameObject.AddComponent<MeshRenderer>();
+        if (GetComponent<MeshCollider>() == null) meshCollider = gameObject.AddComponent<MeshCollider>();
 
         meshFilter = GetComponent<MeshFilter>();
         meshRenderer = GetComponent<MeshRenderer>();
+        meshCollider = GetComponent<MeshCollider>();
 
         mesh = new Mesh();
         meshFilter.mesh = mesh;
+        meshCollider.sharedMesh = mesh;
         meshRenderer.material = mat;
     }
 
@@ -135,6 +138,8 @@ public class TerrainGenerator : MonoBehaviour
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
+
+        meshCollider.sharedMesh = mesh;
 
         GetComponent<MeshFilter>().mesh = mesh;
 
@@ -211,6 +216,8 @@ public class TerrainGenerator : MonoBehaviour
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
 
+        Debug.Log("meshcollider: " + meshCollider == null);
+        GetComponent<MeshCollider>().sharedMesh = mesh;
         GetComponent<MeshFilter>().mesh = mesh;
 
         t++;
@@ -286,6 +293,7 @@ public class TerrainGenerator : MonoBehaviour
         mesh.uv = uvs;
         mesh.RecalculateNormals();
 
+        meshCollider.sharedMesh = mesh;
         GetComponent<MeshFilter>().mesh = mesh;
     }
 
@@ -355,6 +363,7 @@ public class TerrainGenerator : MonoBehaviour
         mesh.uv = uvs;
         mesh.RecalculateNormals();
 
+        meshCollider.sharedMesh = mesh;
         GetComponent<MeshFilter>().mesh = mesh;
 
         t++;
