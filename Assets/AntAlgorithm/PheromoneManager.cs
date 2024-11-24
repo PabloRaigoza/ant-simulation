@@ -1,47 +1,28 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PheromoneManager : MonoBehaviour
 {
-    public GameObject Pheromone; // The pheromone prefab (Particle System)
-    public float depositStrength = 1.0f; // The strength of the pheromone when an ant deposits it
-    private List<Pheromone> pheromones = new List<Pheromone>(); // A list to manage pheromones
+    //public GameObject pheromonePrefab; // Prefab of the pheromone (particle system)
+    //public float depositInterval = 0.5f; // Time interval between pheromone drops
+    //private float timer = 0f;
 
-    // Update pheromones in the scene
-    void Update()
-    {
-        foreach (Pheromone pheromone in pheromones)
-        {
-            pheromone.Update();
-        }
-    }
+    //void Update()
+    //{
+    //    // Update timer for depositing pheromones
+    //    timer += Time.deltaTime;
+    //}
 
-    // Method to deposit pheromone at a given position
     public void DepositPheromone(Vector3 position)
     {
-        GameObject pheromoneObject = Instantiate(Pheromone, position, Quaternion.identity);
-        Pheromone pheromone = pheromoneObject.GetComponent<Pheromone>();
-        pheromone.SetPheromoneStrength(depositStrength); // Set the pheromone strength
-        pheromones.Add(pheromone); // Add to the list of pheromones
-    }
+        //if (timer >= depositInterval)
+        //{
+        //    // Reset the timer
+        //    timer = 0f;
 
-    // Method to get the nearest pheromone to a given position
-    public Pheromone GetNearestPheromone(Vector3 position)
-    {
-        Pheromone nearestPheromone = null;
-        float minDistance = float.MaxValue;
-
-        foreach (Pheromone pheromone in pheromones)
-        {
-            float distance = Vector3.Distance(position, pheromone.transform.position);
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-                nearestPheromone = pheromone;
-            }
-        }
-
-        return nearestPheromone;
+        //    // Instantiate a pheromone particle system at the given position
+        //    Instantiate(pheromonePrefab, position, Quaternion.identity);
+        //}
+        transform.position = position;
     }
 }

@@ -11,6 +11,19 @@ public class RaycastMovement : MonoBehaviour
 {
     [SerializeField] float speed = 0.1f;
     public GameObject terrain;
+    public GameObject pheromoneManager;
+
+
+    //private PheromoneManager pheromoneManagerComponent;
+
+    //void Start()
+    //{
+    //    //pheromoneManagerComponent = GetComponent<PheromoneManager>();
+    //    if (pheromoneManagerComponent == null)
+    //    {
+    //        Debug.LogError("PheromoneManager component not found!");
+    //    }
+    //}
 
 
     // Update is called once per frame
@@ -37,6 +50,11 @@ public class RaycastMovement : MonoBehaviour
         {
             Debug.Log("Raycast didn't hit anything");
         }
+        // Deposit a pheromone at the current position
+        //if (pheromoneManager != null)
+        //{
+        //    pheromoneManagerComponent.DepositPheromone(transform.position);
+        //}
 
     }
 }
