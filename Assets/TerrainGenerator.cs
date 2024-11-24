@@ -139,8 +139,7 @@ public class TerrainGenerator : MonoBehaviour
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
 
-        meshCollider.sharedMesh = mesh;
-
+        GetComponent<MeshCollider>().sharedMesh = mesh;
         GetComponent<MeshFilter>().mesh = mesh;
 
     }
@@ -216,7 +215,6 @@ public class TerrainGenerator : MonoBehaviour
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
 
-        Debug.Log("meshcollider: " + meshCollider == null);
         GetComponent<MeshCollider>().sharedMesh = mesh;
         GetComponent<MeshFilter>().mesh = mesh;
 
@@ -293,7 +291,7 @@ public class TerrainGenerator : MonoBehaviour
         mesh.uv = uvs;
         mesh.RecalculateNormals();
 
-        meshCollider.sharedMesh = mesh;
+        GetComponent<MeshCollider>().sharedMesh = mesh;
         GetComponent<MeshFilter>().mesh = mesh;
     }
 
@@ -363,7 +361,7 @@ public class TerrainGenerator : MonoBehaviour
         mesh.uv = uvs;
         mesh.RecalculateNormals();
 
-        meshCollider.sharedMesh = mesh;
+        GetComponent<MeshCollider>().sharedMesh = mesh;
         GetComponent<MeshFilter>().mesh = mesh;
 
         t++;
