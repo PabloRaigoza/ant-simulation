@@ -11,6 +11,11 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField] int numLat = 10;
     [SerializeField] int numLong = 10;
 
+    int radialSegments = 254; // Number of segments around the torus' ring
+    int tubularSegments = 128; // Number of segments around the tube
+    [SerializeField] float perlin_offset_rate = 1.0f; // Offset for perlin noise
+    int t; // time for offset of perlin noise
+
     // Perlin noise parameters
     [SerializeField] int perlinOctave = 1;
     [SerializeField] float perlinLacunarity = 2f;
@@ -33,13 +38,17 @@ public class TerrainGenerator : MonoBehaviour
 
     void Start() { }
 
-    void Update() { }
+    void Update()
+    {
+        // updateTorus();
+        updateSphere();
+    }
 
     public void GenerateTerrain()
     {
         CreateMeshObject();
-        // GenerateMesh();
-        GenerateTorus();
+        GenerateSphereMesh();
+        // GenerateTorus();
         GenerateTexture();
     }
 
@@ -48,18 +57,16 @@ public class TerrainGenerator : MonoBehaviour
         // If mesh components are not present, create them
         if (GetComponent<MeshFilter>() == null) meshFilter = gameObject.AddComponent<MeshFilter>();
         if (GetComponent<MeshRenderer>() == null) meshRenderer = gameObject.AddComponent<MeshRenderer>();
-        if (GetComponent<MeshCollider>() == null) meshCollider = gameObject.AddComponent<MeshCollider>();
 
         meshFilter = GetComponent<MeshFilter>();
         meshRenderer = GetComponent<MeshRenderer>();
-        meshCollider = GetComponent<MeshCollider>();
 
         mesh = new Mesh();
         meshFilter.mesh = mesh;
         meshRenderer.material = mat;
     }
 
-    private void GenerateMesh()
+    private void GenerateSphereMesh()
     {
         Vector3[] vertices = new Vector3[(numLat + 1) * (numLong + 1)];
         int[] triangles = new int[numLat * numLong * 6];
@@ -129,14 +136,88 @@ public class TerrainGenerator : MonoBehaviour
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
 
-        meshCollider.sharedMesh = mesh;
+        GetComponent<MeshFilter>().mesh = mesh;
 
     }
 
+    private void updateSphere()
+    {
+        mesh = new Mesh();
+        Vector3[] vertices = new Vector3[(numLat + 1) * (numLong + 1)];
+        int[] triangles = new int[numLat * numLong * 6];
+
+        // create vertices of a ball of radius R
+        int i = 0;
+        for (int y = 0; y <= numLat; y++)
+        {
+            for (int x = 0; x <= numLong; x++)
+            {
+                float xSegment = (float)x / numLong;
+                float ySegment = (float)y / numLat;
+
+                // Compute angles
+                float theta = ySegment * Mathf.PI;
+                float phi = xSegment * 2 * Mathf.PI;
+
+                // Compute x, y, z on unit sphere
+                float xPos = Mathf.Sin(theta) * Mathf.Cos(phi);
+                float yPos = Mathf.Cos(theta);
+                float zPos = Mathf.Sin(theta) * Mathf.Sin(phi);
+
+                // Apply seamless 3D Perlin noise to radius
+                float r = 0;
+                for (int o = 0; o < perlinOctave; o++)
+                {
+                    float frequency = Mathf.Pow(perlinLacunarity, o);
+                    float amplitude = Mathf.Pow(perlinPersistance, o);
+                    float sampleX = xPos * frequency + t * perlin_offset_rate / 1000;
+                    float sampleY = yPos * frequency + t * perlin_offset_rate / 1000;
+                    float sampleZ = zPos * frequency + t * perlin_offset_rate / 1000;
+                    r += amplitude * PerlinNoise3D(sampleX, sampleY, sampleZ);
+                }
+                r = Mathf.Max(r, 0.001f) * radius; // Ensure radius is not zero
+
+                // Assign vertex position
+                vertices[i] = new Vector3(xPos, yPos, zPos).normalized * r; // Ensure the vertex is on the sphere's surface
+                i++;
+            }
+        }
+
+        // ,ap vertices to triangles
+        int vert = 0;
+        int tris = 0;
+        for (int y = 0; y < numLat; y++)
+        {
+            for (int x = 0; x < numLong; x++)
+            {
+                triangles[tris + 0] = vert + 1;
+                triangles[tris + 1] = vert + numLong + 1;
+                triangles[tris + 2] = vert + 0;
+
+                triangles[tris + 3] = vert + numLong + 2;
+                triangles[tris + 4] = vert + numLong + 1;
+                triangles[tris + 5] = vert + 1;
+
+                vert++;
+                tris += 6;
+            }
+            vert++;
+        }
+
+
+        // assign vertices and triangles
+        mesh.Clear();
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.RecalculateNormals();
+
+        GetComponent<MeshFilter>().mesh = mesh;
+
+        t++;
+    }
     private void GenerateTorus()
     {
-        int radialSegments = 32; // Number of segments around the torus' ring
-        int tubularSegments = 16; // Number of segments around the tube
+
         // float majorRadius = 10f; // Distance from the center of the torus to the center of the tube
         // float minorRadius = 5f; // Radius of the tube
 
@@ -161,7 +242,21 @@ public class TerrainGenerator : MonoBehaviour
                 float y = Mathf.Sin(phi) * minorRadius;
                 Vector3 offset = new Vector3(Mathf.Cos(theta) * x, y, Mathf.Sin(theta) * x);
 
-                vertices[vertIndex] = circleCenter + offset;
+
+                float r = 0;
+                for (int o = 0; o < perlinOctave; o++)
+                {
+                    float frequency = Mathf.Pow(perlinLacunarity, o);
+                    float amplitude = Mathf.Pow(perlinPersistance, o);
+                    float sampleX = offset.x * frequency;
+                    float sampleY = offset.y * frequency;
+                    float sampleZ = offset.z * frequency;
+                    r += amplitude * PerlinNoise3D(sampleX, sampleY, sampleZ);
+                }
+                r = Mathf.Max(r, 0.001f); // Ensure radius is not zero
+
+
+                vertices[vertIndex] = circleCenter + offset * r;
                 uvs[vertIndex] = new Vector2((float)i / radialSegments, (float)j / tubularSegments);
                 vertIndex++;
             }
@@ -194,6 +289,77 @@ public class TerrainGenerator : MonoBehaviour
         GetComponent<MeshFilter>().mesh = mesh;
     }
 
+    private void updateTorus()
+    {
+        mesh = new Mesh();
+        vertices = new Vector3[(radialSegments + 1) * (tubularSegments + 1)];
+        int[] triangles = new int[radialSegments * tubularSegments * 6];
+        Vector2[] uvs = new Vector2[vertices.Length];
+
+        int vertIndex = 0;
+        int triIndex = 0;
+
+        for (int i = 0; i <= radialSegments; i++)
+        {
+            float theta = (float)i / radialSegments * Mathf.PI * 2f;
+            Vector3 circleCenter = new Vector3(Mathf.Cos(theta) * majorRadius, 0, Mathf.Sin(theta) * majorRadius);
+
+            for (int j = 0; j <= tubularSegments; j++)
+            {
+                float phi = (float)j / tubularSegments * Mathf.PI * 2f;
+                float x = Mathf.Cos(phi) * minorRadius;
+                float y = Mathf.Sin(phi) * minorRadius;
+                Vector3 offset = new Vector3(Mathf.Cos(theta) * x, y, Mathf.Sin(theta) * x);
+
+
+                float r = 0;
+                for (int o = 0; o < perlinOctave; o++)
+                {
+                    float frequency = Mathf.Pow(perlinLacunarity, o);
+                    float amplitude = Mathf.Pow(perlinPersistance, o);
+                    float sampleX = offset.x * frequency + t * perlin_offset_rate / 1000;
+                    float sampleY = offset.y * frequency + t * perlin_offset_rate / 1000;
+                    float sampleZ = offset.z * frequency + t * perlin_offset_rate / 1000;
+                    r += amplitude * PerlinNoise3D(sampleX, sampleY, sampleZ);
+                }
+                r = Mathf.Max(r, 0.001f); // Ensure radius is not zero
+
+
+                vertices[vertIndex] = circleCenter + offset * r;
+                uvs[vertIndex] = new Vector2((float)i / radialSegments, (float)j / tubularSegments);
+                vertIndex++;
+            }
+        }
+
+        for (int i = 0; i < radialSegments; i++)
+        {
+            for (int j = 0; j < tubularSegments; j++)
+            {
+                int a = (i * (tubularSegments + 1)) + j;
+                int b = a + tubularSegments + 1;
+                int c = a + 1;
+                int d = b + 1;
+
+                triangles[triIndex++] = a;
+                triangles[triIndex++] = c;
+                triangles[triIndex++] = b;
+
+                triangles[triIndex++] = c;
+                triangles[triIndex++] = d;
+                triangles[triIndex++] = b;
+            }
+        }
+
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.uv = uvs;
+        mesh.RecalculateNormals();
+
+        GetComponent<MeshFilter>().mesh = mesh;
+
+        t++;
+    }
+
     private static float PerlinNoise3D(float x, float y, float z)
     {
         float xy = Mathf.Sin(Mathf.PI * Mathf.PerlinNoise(x, y));
@@ -218,7 +384,6 @@ public class TerrainGenerator : MonoBehaviour
             maxR = Mathf.Max(maxR, r);
         }
 
-        Debug.Log("minR: " + minR + " maxR: " + maxR);
         mat.SetFloat("minTerrainRadius", minR);
         mat.SetFloat("maxTerrainRadius", maxR);
 

@@ -76,7 +76,16 @@ public class AntAlgorithm : MonoBehaviour
             if (max == double.MinValue)
             {
                 // No strong smells, choose a random neighbor
-                chosenTarget = neighbors[Random.Range(0, neighbors.Count)];
+                if (neighbors.Count == 0)
+                {
+                    chosenTarget = currentPos;
+                }
+                else
+                {
+                    chosenTarget = neighbors[Random.Range(0, neighbors.Count)];
+                }
+
+
             }
         }
         else if (mode == Mode.Return)
@@ -135,12 +144,9 @@ public class AntAlgorithm : MonoBehaviour
 
     void Update()
     {
-        Debug.Log("Current: " + currentPos.GetPosition());
         neighbors = mesh.GetNeighbors(currentPos);
         target = ChooseTarget();
-        Debug.Log("Target: " + target.GetPosition());
         MoveTowards(target);
-        Debug.Log("Current: " + currentPos.GetPosition());
 
         // if (!isWalking)
         // {   
