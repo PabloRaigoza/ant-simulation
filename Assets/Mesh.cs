@@ -12,11 +12,11 @@ public class OurMesh
 
     private Dictionary<Vector3Int, List<int>> spatialHash;
     private float cellSize = 3f;
+    private Mesh UnityMesh;
 
     public OurMesh(Mesh mesh)
     {
-
-        vertices = CreateVertices(mesh.vertices);
+        vertices = CreateVertices(mesh);
         transform = new Transform();
         transform.position = mesh.bounds.center;
 
@@ -25,12 +25,13 @@ public class OurMesh
     }
 
     // helper to convert Vec3 vertices to Vertex objects
-    private List<Vertex> CreateVertices(Vector3[] Vec3Vertices)
+    private List<Vertex> CreateVertices(Mesh mesh)
     {
         List<Vertex> vertices = new List<Vertex>();
-        foreach (Vector3 vertex in Vec3Vertices)
+        for (int i = 0; i < mesh.vertices.Length; i++)
         {
-            vertices.Add(new Vertex(vertex));
+            Vertex vertex = new Vertex(i, mesh);
+            vertices.Add(vertex);
         }
         return vertices;
     }
@@ -41,44 +42,13 @@ public class OurMesh
         return vertices;
     }
 
-    // Find the nearest vertex to a given position
-    public Vertex GetNearestVertex(Vector3 position)
-    {
-        Vertex nearestVertex = null;
-        float minDistance = float.MaxValue;
-
-        foreach (Vertex vertex in vertices)
-        {
-            float distance = Vector3.Distance(vertex.GetPosition(), position);
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-                nearestVertex = vertex;
-            }
-        }
-
-        return nearestVertex;
-    }
-
-    // Query neighbors of a vertex at a specific position
-    public List<Vertex> GetNeighbors(Vertex vertex)
-    {
-        List<Vector3> neighbor_vecs = FindKNearestVertices(vertex.GetPosition(), 10);
-        // convert vec3 to vertex
-        List<Vertex> neighbors = new List<Vertex>();
-        foreach (Vector3 vec in neighbor_vecs)
-        {
-            neighbors.Add(new Vertex(vec));
-        }
-        return neighbors;
-    }
 
     // Debugging: Visualize the mesh by drawing lines between connected vertices
     public void DebugDrawMesh(Color color)
     {
         foreach (Vertex vertex in vertices)
         {
-            foreach (Vertex neighbor in GetNeighbors(vertex))
+            foreach (Vertex neighbor in FindKNearestVertices(vertex.GetPosition(), 5))
             {
                 Debug.DrawLine(vertex.GetPosition(), neighbor.GetPosition(), color);
             }
@@ -133,7 +103,7 @@ public class OurMesh
     /// <param name="point">The point to search from.</param>
     /// <param name="k">The number of nearest vertices to find.</param>
     /// <returns>A list of the k-nearest vertices.</returns>
-    public List<Vector3> FindKNearestVertices(Vector3 point, int k)
+    public List<Vertex> FindKNearestVertices(Vector3 point, int k)
     {
         Vector3Int cell = WorldToCell(point);
         List<int> candidateIndices = new List<int>();
@@ -155,27 +125,22 @@ public class OurMesh
         }
 
         // Calculate distances to the candidate vertices
-        List<(float, Vector3)> distances = new List<(float, Vector3)>();
+        List<(float, Vertex)> distances = new List<(float, Vertex)>();
         foreach (int index in candidateIndices)
         {
             float distance = Vector3.Distance(point, vertices[index].GetPosition());
-            distances.Add((distance, vertices[index].GetPosition()));
+            distances.Add((distance, vertices[index]));
         }
 
         // Sort and return the k-nearest vertices
         distances.Sort((a, b) => a.Item1.CompareTo(b.Item1));
-        List<Vector3> nearestVertices = new List<Vector3>();
+        List<Vertex> nearestVertices = new List<Vertex>();
 
         for (int i = 0; i < Mathf.Min(k + 1, distances.Count); i++)
         {
             if (i == 0) continue;
             nearestVertices.Add(distances[i].Item2);
         }
-
-        //foreach (var neighbor in nearestVertices)
-        //{
-        //    Debug.Log("Neighbor Position: " + neighbor);
-        //}
 
         return nearestVertices;
     }

@@ -35,7 +35,7 @@ public class AntAlgorithm : MonoBehaviour
     private OurMesh mesh;
     private Mode mode;
     private bool isWalking = false;
-    private float speed = 5.0f;
+    [SerializeField] float speed = 0.1f;
     private bool hasFood = false; // Indicates if the ant is carrying food
 
     private Vertex target;
@@ -47,7 +47,7 @@ public class AntAlgorithm : MonoBehaviour
     void Start()
     {
         mesh = new OurMesh(terrain.GetComponent<MeshFilter>().mesh);
-        pheromoneManager = FindObjectOfType<PheromoneManager>(); 
+        pheromoneManager = FindObjectOfType<PheromoneManager>();
 
         mode = Mode.Explore;
         // currentPos = nest.GetComponent<Vertex>();
@@ -63,7 +63,6 @@ public class AntAlgorithm : MonoBehaviour
 
         //currentPos = new Vertex(nestPosition); // Assuming the Vertex constructor accepts a Vector3
         //MoveTowards(currentPos);
-        neighbors = mesh.GetNeighbors(currentPos);
         //targetList = new List<Vertex>();
 
         //// Correct the typo from tragetList to targetList
@@ -179,6 +178,35 @@ public class AntAlgorithm : MonoBehaviour
 
     void Update()
     {
+        if (target != null)
+        {
+            // move towards target
+            Vector3 direction = (target.GetPosition() - transform.position).normalized;
+            transform.position += direction * speed * Time.deltaTime;
+
+            // if ant has reached the target
+            if (Vector3.Distance(transform.position, target.GetPosition()) < 0.1f)
+            {
+                currentPos = target;
+                transform.position = target.GetPosition();
+                target = null;
+            }
+        }
+        else
+        {
+            // setup new target
+            neighbors = mesh.FindKNearestVertices(currentPos.GetPosition(), 5);
+            if (neighbors.Count == 0)
+            {
+                Debug.Log("No neighbors");
+                target = null;
+            }
+            else
+            {
+                target = neighbors[Random.Range(0, neighbors.Count)];
+            }
+        }
+
         //Debug.Log("I am here");
         //for (int i = 0; i < targetList.Count; i++)
         //{
@@ -195,13 +223,13 @@ public class AntAlgorithm : MonoBehaviour
         //Debug.Log("hello: " + target.GetPosition());
         //target = new Vertex(new Vector3(0, 0, 0));
         //Debug.Log(target.transform.position);
-        List<Vertex> allVertices = mesh.GetVertices();
-        int randomIndex = Random.Range(0, allVertices.Count);
-        target = allVertices[randomIndex];
-        Debug.Log(target.GetPosition());
-        MoveTowards(target);
-        //pheromoneManager.DepositPheromone(transform.position);
-        currentPos = target;
+        // List<Vertex> allVertices = mesh.GetVertices();
+        // int randomIndex = Random.Range(0, allVertices.Count);
+        // target = allVertices[randomIndex];
+        // Debug.Log(target.GetPosition());
+        // MoveTowards(target);
+        pheromoneManager.DepositPheromone(transform.position);
+        // currentPos = target;
 
         // if (!isWalking)
         // {   

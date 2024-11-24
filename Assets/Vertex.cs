@@ -13,10 +13,15 @@ public class Vertex
     private bool hasFood; // Indicates if this vertex contains food
     private const double pheromoneDecayRate = 0.01; // How quickly pheromones decay per tick
 
-    public Vertex(Vector3 vert3)
+    private Mesh mesh;
+    private int vertIdx;
+
+    public Vertex(int vertIdx, Mesh mesh)
     {
+        this.mesh = mesh;
+        this.vertIdx = vertIdx;
         transform = new Transform();
-        transform.position = vert3;
+        transform.position = mesh.vertices[vertIdx];
 
         foodSmell = 0;
         pheromoneSmell = 0;
@@ -149,7 +154,7 @@ public class Vertex
 
     public Vector3 GetPosition()
     {
-        return transform.position;
+        return mesh.vertices[vertIdx];
     }
 
     public void SetPosition(Vector3 position)

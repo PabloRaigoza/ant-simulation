@@ -411,24 +411,11 @@ public class TerrainGenerator : MonoBehaviour
         mat.SetTexture("terrainTextures", textures);
     }
 
-
-
-
-
-
-
-
     [System.Serializable]
     class Layer
     {
         public Texture2D texture;
         [Range(0, 1)] public float startRadius;
     }
-
-
-    // TO FIND CLOSEST VERTEX
-    // find the nearest discrete lat-long to the then return corresponding vertex
-
-    // I also dont think we should find vertex, we should return the normal vector at that point
 
 }
