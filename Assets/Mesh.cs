@@ -172,6 +172,11 @@ public class OurMesh
             nearestVertices.Add(distances[i].Item2);
         }
 
+        //foreach (var neighbor in nearestVertices)
+        //{
+        //    Debug.Log("Neighbor Position: " + neighbor);
+        //}
+
         return nearestVertices;
     }
 
