@@ -40,8 +40,8 @@ public class TerrainGenerator : MonoBehaviour
 
     void Update()
     {
-        // updateTorus();
         updateSphere();
+        // updateTorus();
     }
 
     public void GenerateTerrain()

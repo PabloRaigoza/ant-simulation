@@ -1,47 +1,69 @@
-using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 
-public class PheromoneManager : MonoBehaviour
-{
-    public GameObject Pheromone; // The pheromone prefab (Particle System)
-    public float depositStrength = 1.0f; // The strength of the pheromone when an ant deposits it
-    private List<Pheromone> pheromones = new List<Pheromone>(); // A list to manage pheromones
 
-    // Update pheromones in the scene
+
+public class PheromoneManager : MonoBehaviour
+
+{
+    public GameObject Ant;
+    public GameObject PheromonePrefab;
+    public float depositInterval = 1f;
+    private float timer = 0f;
+    public Queue<GameObject> visblePheromoneQueue = new Queue<GameObject>();
+    private Queue<GameObject> nonvisiblePheromoneQueue = new Queue<GameObject>();
+    public int maxPheromones = 100;
+    public int totalVisiblePheromones = 10;
+    private int numVisiblePheromones = 0;
+
+    void Start()
+    {
+        // create all pheromones and hide them
+        for (int i = 0; i < maxPheromones; i++)
+        {
+            GameObject pheromone = Instantiate(PheromonePrefab);
+            pheromone.GetComponent<Renderer>().enabled = false;
+            nonvisiblePheromoneQueue.Enqueue(pheromone);
+
+            // GameObject pheromone = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            // pheromone.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            // pheromone.GetComponent<Renderer>().material.color = Color.yellow;
+
+
+        }
+    }
+
     void Update()
     {
-        foreach (Pheromone pheromone in pheromones)
+        timer += Time.deltaTime;
+        if (timer >= depositInterval)
         {
-            pheromone.Update();
-        }
-    }
+            timer = 0f;
 
-    // Method to deposit pheromone at a given position
-    public void DepositPheromone(Vector3 position)
-    {
-        GameObject pheromoneObject = Instantiate(Pheromone, position, Quaternion.identity);
-        Pheromone pheromone = pheromoneObject.GetComponent<Pheromone>();
-        pheromone.SetPheromoneStrength(depositStrength); // Set the pheromone strength
-        pheromones.Add(pheromone); // Add to the list of pheromones
-    }
-
-    // Method to get the nearest pheromone to a given position
-    public Pheromone GetNearestPheromone(Vector3 position)
-    {
-        Pheromone nearestPheromone = null;
-        float minDistance = float.MaxValue;
-
-        foreach (Pheromone pheromone in pheromones)
-        {
-            float distance = Vector3.Distance(position, pheromone.transform.position);
-            if (distance < minDistance)
+            if (visblePheromoneQueue.Count >= totalVisiblePheromones)
             {
-                minDistance = distance;
-                nearestPheromone = pheromone;
+                GameObject visPheromone = visblePheromoneQueue.Dequeue();
+                visPheromone.GetComponent<Renderer>().enabled = false;
+                nonvisiblePheromoneQueue.Enqueue(visPheromone);
+                numVisiblePheromones--;
             }
-        }
 
-        return nearestPheromone;
+            GameObject nonVisPheromone = nonvisiblePheromoneQueue.Dequeue();
+            nonVisPheromone.GetComponent<Renderer>().enabled = true;
+            nonVisPheromone.transform.position = Ant.transform.position;
+            visblePheromoneQueue.Enqueue(nonVisPheromone);
+            numVisiblePheromones++;
+
+        }
     }
+
+
+
+    // public void DepositPheromone(Vector3 position)
+    // {
+
+    //     transform.position = position;
+    // }
+
 }
