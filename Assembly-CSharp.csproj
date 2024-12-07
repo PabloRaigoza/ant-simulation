@@ -59,28 +59,29 @@
     <UnityVersion>2022.3.46f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="C:\Users\ongyi\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.0.4\Analyzers\Microsoft.Unity.Analyzers.dll" />
+    <Analyzer Include="C:\Users\ongyi\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.0.5\Analyzers\Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.46f1-x86_64\Editor\Data\Tools\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.46f1-x86_64\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\triangleMeshPlane.cs" />
     <Compile Include="Assets\AntAlgorithm\PheromoneManager.cs" />
-    <Compile Include="Assets\Crawler.cs" />
-    <Compile Include="Assets\Transform.cs" />
-    <Compile Include="Assets\Vertex.cs" />
-    <Compile Include="Assets\TerrainGenerator.cs" />
+    <Compile Include="Assets\Mesh\TerrainGenerator.cs" />
     <Compile Include="Assets\AntAlgorithm\Nest.cs" />
+    <Compile Include="Assets\deprecated\Transform.cs" />
     <Compile Include="Assets\AntAlgorithm\AntsMovement.cs" />
     <Compile Include="Assets\AntAlgorithm\Pheromone.cs" />
     <Compile Include="Assets\Tutorial\BoxExplosion.cs" />
+    <Compile Include="Assets\ScentParticle.cs" />
     <Compile Include="Assets\Tutorial\UserControlBall.cs" />
+    <Compile Include="Assets\deprecated\Vertex.cs" />
     <Compile Include="Assets\AntAlgorithm\AntAlgorithm.cs" />
-    <Compile Include="Assets\NewBehaviourScript.cs" />
+    <Compile Include="Assets\AntAlgorithm\Crawler.cs" />
     <Compile Include="Assets\Mesh.cs" />
+    <Compile Include="Assets\ScentMovement.cs" />
+    <Compile Include="Assets\ScentEmitter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\TerrainShader.shader" />
+    <None Include="Assets\Textures\TerrainShader.shader" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

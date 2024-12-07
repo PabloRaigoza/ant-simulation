@@ -4,9 +4,10 @@
 TagManager:
   serializedVersion: 2
   tags:
+  - Ant
+  - Terrain
   - Food
-  - Killer
-  - Nest
+  - Scent
   layers:
   - Default
   - TransparentFX
