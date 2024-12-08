@@ -8,6 +8,7 @@ TagManager:
   - Terrain
   - Food
   - Scent
+  - Nest
   layers:
   - Default
   - TransparentFX

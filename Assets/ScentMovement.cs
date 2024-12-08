@@ -5,6 +5,7 @@ using UnityEngine;
 public class ScentMovement : MonoBehaviour
 {
     public ParticleSystem ps;
+    public GameObject Food;
 
     // Update is called once per frame
     void Update()
@@ -57,19 +58,13 @@ public class ScentMovement : MonoBehaviour
         // update particle and collision object according to other's tag
         if (other.tag == "Ant")
         {
-            Debug.Log("Ant collision");
             particles[collisionIdx].startColor = Color.green;
-
-            // print the direction of collision
             if (other.GetComponent<MeshCrawler>() != null)
             {
-                other.GetComponent<MeshCrawler>().UpdateScentDir(-collisionDir);
+                other.GetComponent<MeshCrawler>().FoodSensed(Food.transform.position);
             }
         }
-        else if (other.tag == "Terrain")
-        {
-            // particles[collisionIdx].startColor = Color.red;
-        }
+
 
         ps.SetParticles(particles, numParticlesAlive);
     }

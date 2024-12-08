@@ -3,6 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// States of the ant
+public enum AntState
+{
+    SEARCHING,
+    NAV_TO_FOOD,
+    RETURNING_TO_NEST
+}
+
 public class MeshCrawler : MonoBehaviour
 {
     private struct Contact
@@ -40,8 +48,12 @@ public class MeshCrawler : MonoBehaviour
     [NonSerialized] private List<Contact> m_contacts = new List<Contact>();
 
     [SerializeField] public PheromoneManager pheromoneManager;
+    [SerializeField] public GameObject nest;
 
-    private Vector3 ScentDir;
+    private Vector3 FoodDir;
+    private GameObject foodCube;
+
+    private AntState state = AntState.SEARCHING;
 
     // #if ROTATE_CRAWLER
 
@@ -51,7 +63,151 @@ public class MeshCrawler : MonoBehaviour
 
     // #endif
 
+    private void Start()
+    {
 
+
+        CreateCollider();
+        UpdateTopology();
+    }
+
+    private void Crawl()
+    {
+
+
+        if (m_xform == null) return;
+
+        if (m_verts == null) return;
+
+        if (m_tris == null) return;
+
+        if (m_normals == null) return;
+
+        if (m_contacts == null) return;
+
+        GetNearestTris(transform.position, m_radius, m_verts, m_tris, m_normals, m_xform, m_contacts);
+
+        if (m_contacts.Count <= 0) return;
+
+        Contact nearest = default;
+
+        float min_dist = float.MaxValue;
+
+        for (int c = 0, count = m_contacts.Count; c < count; ++c)
+        {
+            Contact contact = m_contacts[c];
+
+            float dist = (m_contacts[c].p - transform.position).AbsSumDist();
+
+            if ((min_dist > dist) || ((min_dist == dist) && (m_tri != contact.tri)))
+            {
+                min_dist = dist;
+
+                nearest = contact;
+
+                m_tri = contact.tri;
+            }
+        }
+
+
+        Quaternion quat = Quaternion.identity;
+
+        // close to food 
+        if (state == AntState.NAV_TO_FOOD && Vector3.Distance(transform.position, FoodDir) < 0.2f)
+        {
+            FoodReached();
+        }
+
+        // close to nest
+        if (state == AntState.RETURNING_TO_NEST && Vector3.Distance(transform.position, nest.transform.position) < 0.1f)
+        {
+            Debug.Log("State:" + state);
+            NestReached();
+        }
+
+        // update movement based on state
+        Vector3 move_dir = Vector3.zero;
+        if (state == AntState.SEARCHING)
+        {
+            move_dir = Vector3.Cross(transform.right, nearest.n);
+        }
+        else if (state == AntState.NAV_TO_FOOD)
+        {
+            Vector3 pf = FoodDir - transform.position;
+            Vector3 pf_ll = pf - Vector3.Project(pf, nearest.n);
+            move_dir = pf_ll.normalized;
+        }
+        else if (state == AntState.RETURNING_TO_NEST)
+        {
+            Vector3 pn = nest.transform.position - transform.position;
+            Vector3 pn_ll = pn - Vector3.Project(pn, nearest.n);
+            move_dir = pn_ll.normalized;
+        }
+
+        // add random value of forward and right
+        move_dir += transform.forward * UnityEngine.Random.Range(-0.1f, 0.1f);
+        move_dir += transform.right * UnityEngine.Random.Range(-0.1f, 0.1f);
+
+        move_dir.Normalize();
+
+        transform.LookAt(transform.position + move_dir, nearest.n);
+
+
+        transform.position = nearest.p + (transform.forward * m_speed * Mathf.Min(Time.deltaTime, 0.016f)) + (nearest.n * 0.01f);
+
+
+        transform.rotation = quat * transform.rotation;
+
+    }
+
+    private void Update()
+    {
+        UpdateTopology();
+        Crawl();
+    }
+
+
+    /******** FUNCTION TO CHANGE STATE ********/
+    public void FoodSensed(Vector3 foodDir)
+    {
+        if (state == AntState.SEARCHING)
+        {
+            Debug.Log("SEARCHING -> NAV_TO_FOOD");
+            FoodDir = foodDir;
+            state = AntState.NAV_TO_FOOD;
+        }
+
+    }
+
+    public void FoodReached()
+    {
+        Debug.Log("NAV_TO_FOOD -> RETURNING_TO_NEST");
+        state = AntState.RETURNING_TO_NEST;
+        // create a little 3d obj box to sim the food and place on ant in ant cooridate system
+        foodCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        foodCube.transform.parent = transform;
+        foodCube.transform.localPosition = new Vector3(0.0f, 5.0f, 0.5f);
+        foodCube.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+        foodCube.transform.localRotation = Quaternion.Euler(3.2f, -86.8f, 106.3f);
+
+    }
+
+    public void NestReached()
+    {
+        Debug.Log("RETURNING_TO_NEST -> SEARCHING");
+        state = AntState.SEARCHING;
+
+        // destroy the food cube
+        Destroy(foodCube);
+    }
+
+    public void CreateCollider()
+    {
+        SphereCollider sphereCollider = gameObject.AddComponent<SphereCollider>();
+        sphereCollider.radius = m_radius;
+    }
+
+    /************* CODE TO SUPPORT RAYCAST CRAWLING *************/
     private GameObject support { set { if (m_support != value) { m_support = value; UpdateTopology(); } } }
 
     /* Updates support mesh */
@@ -73,11 +229,7 @@ public class MeshCrawler : MonoBehaviour
         m_tri = -1;
     }
 
-    public void UpdateScentDir(Vector3 scentDir_)
-    {
-        Debug.Log("ScentDir: " + scentDir_);
-        ScentDir = scentDir_;
-    }
+
 
     /* Determines if point [p] is inside triangle at the index [tri] of 
     an array of triangle [tris] */
@@ -264,143 +416,6 @@ public class MeshCrawler : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-
-        UpdateTopology();
-    }
-
-    private void Crawl()
-    {
-        if (m_xform == null)
-        {
-            Debug.Log("m_xform is null");
-            return;
-        }
-
-        if (m_verts == null)
-        {
-            Debug.Log("m_verts is null");
-            return;
-        }
-
-        if (m_tris == null)
-        {
-            Debug.Log("m_tris is null");
-            return;
-        }
-
-        if (m_normals == null)
-        {
-            Debug.Log("m_normals is null");
-            return;
-        }
-
-        if (m_contacts == null)
-        {
-            Debug.Log("m_contacts is null");
-            return;
-        }
-
-        GetNearestTris(transform.position, m_radius, m_verts, m_tris, m_normals, m_xform, m_contacts);
-
-        if (m_contacts.Count <= 0)
-        {
-            Debug.Log("No contacts");
-            return;
-        }
-
-
-        Contact nearest = default;
-
-        float min_dist = float.MaxValue;
-
-        for (int c = 0, count = m_contacts.Count; c < count; ++c)
-        {
-            Contact contact = m_contacts[c];
-
-            float dist = (m_contacts[c].p - transform.position).AbsSumDist();
-
-            if ((min_dist > dist) || ((min_dist == dist) && (m_tri != contact.tri)))
-            {
-                min_dist = dist;
-
-                nearest = contact;
-
-                m_tri = contact.tri;
-            }
-        }
-
-
-        Quaternion quat = Quaternion.identity;
-
-        // if ant is following pheromone trail
-        Vector3 move_dir = Vector3.Cross(transform.right, nearest.n);
-
-        // // if ant is following pheromone trail
-        // if (followPheromone)
-        // {
-        //     // find nearest pheromone from pheromoneManager
-        //     float phermoneDist = float.MaxValue;
-        //     GameObject nearestPheromone = null;
-        //     foreach (GameObject pheromone in pheromoneManager.visblePheromoneQueue)
-        //     {
-        //         float d = (pheromone.transform.position - transform.position).sqrMagnitude;
-        //         if (d < phermoneDist)
-        //         {
-        //             phermoneDist = d;
-        //             nearestPheromone = pheromone;
-        //         }
-        //     }
-
-        //     if (nearestPheromone != null)
-        //     {
-        //         Vector3 ant2pheromone = nearestPheromone.transform.position - transform.position;
-        //         nearest.n.Normalize();
-        //         move_dir = ant2pheromone - Vector3.Dot(ant2pheromone, nearest.n) * nearest.n;
-
-        //         if (move_dir.sqrMagnitude < 0.01f || Vector3.Dot(move_dir, nearest.n) < 0.0f)
-        //         {
-        //             move_dir = Vector3.Cross(transform.right, nearest.n);
-        //         }
-        //     }
-        //     else
-        //     {
-        //         move_dir = Vector3.Cross(transform.right, nearest.n);
-        //     }
-        // }
-
-        // // if ant has a scent direction
-        if (ScentDir != null)
-        {
-            move_dir += ScentDir * 10;
-            ScentDir = Vector3.zero;
-        }
-
-
-
-        // add random value of forward and right
-        move_dir += transform.forward * UnityEngine.Random.Range(-0.1f, 0.1f);
-        move_dir += transform.right * UnityEngine.Random.Range(-0.1f, 0.1f);
-
-        move_dir.Normalize();
-
-        transform.LookAt(transform.position + move_dir, nearest.n);
-
-
-        transform.position = nearest.p + (transform.forward * m_speed * Mathf.Min(Time.deltaTime, 0.016f)) + (nearest.n * 0.01f);
-
-
-        transform.rotation = quat * transform.rotation;
-
-    }
-
-
-    private void Update()
-    {
-        UpdateTopology();
-        Crawl();
-    }
 
 }
 

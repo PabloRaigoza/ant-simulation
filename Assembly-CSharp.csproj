@@ -71,14 +71,12 @@
     <Compile Include="Assets\AntAlgorithm\AntsMovement.cs" />
     <Compile Include="Assets\AntAlgorithm\Pheromone.cs" />
     <Compile Include="Assets\Tutorial\BoxExplosion.cs" />
-    <Compile Include="Assets\ScentParticle.cs" />
     <Compile Include="Assets\Tutorial\UserControlBall.cs" />
     <Compile Include="Assets\deprecated\Vertex.cs" />
     <Compile Include="Assets\AntAlgorithm\AntAlgorithm.cs" />
     <Compile Include="Assets\AntAlgorithm\Crawler.cs" />
     <Compile Include="Assets\Mesh.cs" />
     <Compile Include="Assets\ScentMovement.cs" />
-    <Compile Include="Assets\ScentEmitter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Textures\TerrainShader.shader" />
