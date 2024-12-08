@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="Assets\AntAlgorithm\PheromoneManager.cs" />
     <Compile Include="Assets\Mesh\TerrainGenerator.cs" />
+    <Compile Include="Assets\deprecated\PheromoneOld.cs" />
     <Compile Include="Assets\AntAlgorithm\Nest.cs" />
     <Compile Include="Assets\deprecated\Transform.cs" />
     <Compile Include="Assets\AntAlgorithm\AntsMovement.cs" />

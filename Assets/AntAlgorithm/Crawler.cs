@@ -7,7 +7,8 @@ using UnityEngine;
 public enum AntState
 {
     SEARCHING,
-    NAV_TO_FOOD,
+    NAV_TO_FOOD_W_SCENT,
+    NAV_TO_FOOD_W_PHEROMONE,
     RETURNING_TO_NEST
 }
 
@@ -50,8 +51,9 @@ public class MeshCrawler : MonoBehaviour
     [SerializeField] public PheromoneManager pheromoneManager;
     [SerializeField] public GameObject nest;
 
+    private GameObject Pheromone2Follow;
     private Vector3 FoodDir;
-    private GameObject foodCube;
+    private GameObject foodCube; // tiny cube to simulare food
 
     private AntState state = AntState.SEARCHING;
 
@@ -65,8 +67,6 @@ public class MeshCrawler : MonoBehaviour
 
     private void Start()
     {
-
-
         CreateCollider();
         UpdateTopology();
     }
@@ -112,30 +112,36 @@ public class MeshCrawler : MonoBehaviour
 
         Quaternion quat = Quaternion.identity;
 
-        // close to food 
-        if (state == AntState.NAV_TO_FOOD && Vector3.Distance(transform.position, FoodDir) < 0.2f)
-        {
-            FoodReached();
-        }
-
-        // close to nest
-        if (state == AntState.RETURNING_TO_NEST && Vector3.Distance(transform.position, nest.transform.position) < 0.1f)
-        {
-            Debug.Log("State:" + state);
-            NestReached();
-        }
-
         // update movement based on state
         Vector3 move_dir = Vector3.zero;
         if (state == AntState.SEARCHING)
         {
             move_dir = Vector3.Cross(transform.right, nearest.n);
         }
-        else if (state == AntState.NAV_TO_FOOD)
+        else if (state == AntState.NAV_TO_FOOD_W_SCENT)
         {
             Vector3 pf = FoodDir - transform.position;
             Vector3 pf_ll = pf - Vector3.Project(pf, nearest.n);
             move_dir = pf_ll.normalized;
+        }
+        else if (state == AntState.NAV_TO_FOOD_W_PHEROMONE)
+        {
+            if (Pheromone2Follow != null)
+            {
+                Vector3 pp = Pheromone2Follow.transform.position - transform.position;
+                Vector3 pp_ll = pp - Vector3.Project(pp, nearest.n);
+                move_dir = pp_ll.normalized;
+
+                // update pheromone to follow
+                Pheromone2Follow = Pheromone2Follow.GetComponent<Pheromone>().GetNextPheromoneToFood();
+
+            }
+            else
+            {
+                state = AntState.SEARCHING;
+            }
+
+
         }
         else if (state == AntState.RETURNING_TO_NEST)
         {
@@ -153,42 +159,69 @@ public class MeshCrawler : MonoBehaviour
         transform.LookAt(transform.position + move_dir, nearest.n);
 
 
-        transform.position = nearest.p + (transform.forward * m_speed * Mathf.Min(Time.deltaTime, 0.016f)) + (nearest.n * 0.01f);
-
+        Vector3 newpos = nearest.p + (transform.forward * m_speed * Mathf.Min(Time.deltaTime, 0.016f)) + (nearest.n * 0.01f);
 
         transform.rotation = quat * transform.rotation;
+
+        // if distance does not change then move it randomly
+        if (Vector3.Distance(transform.position, newpos) < 0.01f)
+        {
+            Debug.Log("Ant is stuck");
+            transform.position += transform.forward * m_speed * Mathf.Min(Time.deltaTime, 0.016f);
+        }
+        else
+        {
+            transform.position = newpos;
+        }
 
     }
 
     private void Update()
     {
+        Debug.Log("State: " + state);
         UpdateTopology();
         Crawl();
     }
 
 
+
     /******** FUNCTION TO CHANGE STATE ********/
-    public void FoodSensed(Vector3 foodDir)
+
+
+    public void FoodScentDetected(Vector3 foodDir)
     {
         if (state == AntState.SEARCHING)
         {
-            Debug.Log("SEARCHING -> NAV_TO_FOOD");
+            Debug.Log("SEARCHING -> NAV_TO_FOOD_W_SCENT");
             FoodDir = foodDir;
-            state = AntState.NAV_TO_FOOD;
+            state = AntState.NAV_TO_FOOD_W_SCENT;
         }
+    }
 
+    public void PheromoneDetected(GameObject pheromone)
+    {
+        if (state == AntState.SEARCHING)
+        {
+            Debug.Log("SEARCHING -> NAV_TO_FOOD_w_PHEROMONE");
+            state = AntState.NAV_TO_FOOD_W_PHEROMONE;
+            Pheromone2Follow = pheromone;
+        }
     }
 
     public void FoodReached()
     {
         Debug.Log("NAV_TO_FOOD -> RETURNING_TO_NEST");
         state = AntState.RETURNING_TO_NEST;
+
         // create a little 3d obj box to sim the food and place on ant in ant cooridate system
         foodCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         foodCube.transform.parent = transform;
         foodCube.transform.localPosition = new Vector3(0.0f, 5.0f, 0.5f);
         foodCube.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
         foodCube.transform.localRotation = Quaternion.Euler(3.2f, -86.8f, 106.3f);
+
+        // start pheromone trail
+        pheromoneManager.startLayPheromone();
 
     }
 
@@ -199,12 +232,44 @@ public class MeshCrawler : MonoBehaviour
 
         // destroy the food cube
         Destroy(foodCube);
+
+        // stop pheromone trail
+        pheromoneManager.stopLayPheromone();
     }
 
     public void CreateCollider()
     {
         SphereCollider sphereCollider = gameObject.AddComponent<SphereCollider>();
-        sphereCollider.radius = m_radius;
+        sphereCollider.radius = 1.0f;
+        sphereCollider.isTrigger = false;
+
+        // rigid body
+        Rigidbody rb = gameObject.AddComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.isKinematic = true;
+    }
+
+    public void OnTriggerEnter(Collider other)
+    {
+        // Food collision handling
+        if (other.tag == "Food" && (state == AntState.NAV_TO_FOOD_W_SCENT ||
+            state == AntState.NAV_TO_FOOD_W_PHEROMONE || state == AntState.SEARCHING))
+        {
+
+            FoodReached();
+        }
+
+        // Nest collision handling
+        else if (other.tag == "Nest" && state == AntState.RETURNING_TO_NEST)
+        {
+            NestReached();
+        }
+
+        // coollide with pheromone
+        else if (other.tag == "Pheromone" && state == AntState.SEARCHING)
+        {
+            PheromoneDetected(other.gameObject);
+        }
     }
 
     /************* CODE TO SUPPORT RAYCAST CRAWLING *************/

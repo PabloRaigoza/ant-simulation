@@ -61,7 +61,7 @@ public class ScentMovement : MonoBehaviour
             particles[collisionIdx].startColor = Color.green;
             if (other.GetComponent<MeshCrawler>() != null)
             {
-                other.GetComponent<MeshCrawler>().FoodSensed(Food.transform.position);
+                other.GetComponent<MeshCrawler>().FoodScentDetected(Food.transform.position);
             }
         }
 
