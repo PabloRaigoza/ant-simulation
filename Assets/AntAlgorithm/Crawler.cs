@@ -25,12 +25,11 @@ public class MeshCrawler : MonoBehaviour
         public float t;
     }
 
-    [SerializeField] public bool followPheromone = false;
     [SerializeField] private float m_radius = 0.5f;
 
-    [SerializeField] private float m_speed = 1.0f;
+    [SerializeField] private float m_speed = 5.0f;
 
-    [SerializeField] private GameObject m_support = null;
+    [SerializeField] public GameObject m_support = null;
 
     [NonSerialized] private UnityEngine.Transform m_xform = null;
 
@@ -192,7 +191,7 @@ public class MeshCrawler : MonoBehaviour
     {
         if (state == AntState.SEARCHING)
         {
-            Debug.Log("SEARCHING -> NAV_TO_FOOD_W_SCENT");
+            // Debug.Log("SEARCHING -> NAV_TO_FOOD_W_SCENT");
             FoodDir = foodDir;
             state = AntState.NAV_TO_FOOD_W_SCENT;
         }
@@ -202,7 +201,7 @@ public class MeshCrawler : MonoBehaviour
     {
         if (state == AntState.SEARCHING)
         {
-            Debug.Log("SEARCHING -> NAV_TO_FOOD_w_PHEROMONE");
+            // Debug.Log("SEARCHING -> NAV_TO_FOOD_w_PHEROMONE");
             state = AntState.NAV_TO_FOOD_W_PHEROMONE;
             Pheromone2Follow = pheromone;
         }
@@ -210,14 +209,14 @@ public class MeshCrawler : MonoBehaviour
 
     public void FoodReached()
     {
-        Debug.Log("NAV_TO_FOOD -> RETURNING_TO_NEST");
+        // Debug.Log("NAV_TO_FOOD -> RETURNING_TO_NEST");
         state = AntState.RETURNING_TO_NEST;
 
         // create a little 3d obj box to sim the food and place on ant in ant cooridate system
         foodCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         foodCube.transform.parent = transform;
-        foodCube.transform.localPosition = new Vector3(0.0f, 5.0f, 0.5f);
-        foodCube.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+        foodCube.transform.localPosition = new Vector3(0.0f, 0.3f, 0.0f);
+        foodCube.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
         foodCube.transform.localRotation = Quaternion.Euler(3.2f, -86.8f, 106.3f);
 
         // start pheromone trail
@@ -227,7 +226,7 @@ public class MeshCrawler : MonoBehaviour
 
     public void NestReached()
     {
-        Debug.Log("RETURNING_TO_NEST -> SEARCHING");
+        // Debug.Log("RETURNING_TO_NEST -> SEARCHING");
         state = AntState.SEARCHING;
 
         // destroy the food cube
@@ -240,7 +239,7 @@ public class MeshCrawler : MonoBehaviour
     public void CreateCollider()
     {
         SphereCollider sphereCollider = gameObject.AddComponent<SphereCollider>();
-        sphereCollider.radius = 1.0f;
+        sphereCollider.radius = 0.1f;
         sphereCollider.isTrigger = false;
 
         // rigid body
@@ -255,7 +254,7 @@ public class MeshCrawler : MonoBehaviour
         if (other.tag == "Food" && (state == AntState.NAV_TO_FOOD_W_SCENT ||
             state == AntState.NAV_TO_FOOD_W_PHEROMONE || state == AntState.SEARCHING))
         {
-
+            // Debug.Log("Food reached");
             FoodReached();
         }
 
