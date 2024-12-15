@@ -748,7 +748,8 @@ MonoBehaviour:
   antPrefab: {fileID: 666332463}
   Nest: {fileID: 2003677492}
   m_support: {fileID: 555254544}
-  numAnts: 10
+  numAnts: 100
+  numVisibleAnts: 20
   depositInterval: 2
   timer: 0
 --- !u!4 &1550453372

@@ -104,7 +104,6 @@ public class MeshCrawler : MonoBehaviour
         m_tri = -1;
     }
 
-
     private void Update()
     {
         // if mesh not visible then return

@@ -11,6 +11,7 @@ public class AntSwarm : MonoBehaviour
     [SerializeField] private GameObject m_support;
 
     [SerializeField] private int numAnts = 10;
+    [SerializeField] private int numVisibleAnts = 10;
     [SerializeField] private float depositInterval = 5.0f;
     [SerializeField] private float timer = 0f;
 
@@ -46,7 +47,7 @@ public class AntSwarm : MonoBehaviour
 
             // add ant to the nonvisible queue
             nonvisibleAntQueue.Enqueue(antObject);
-            // antObject.SetActive(false);
+            antObject.SetActive(false);
         }
     }
 
@@ -58,20 +59,35 @@ public class AntSwarm : MonoBehaviour
         {
             timer = 0f;
 
-            if (visibleAntQueue.Count >= numAnts)
+            // At the start to fill up the ants
+            if (visibleAntQueue.Count < numVisibleAnts && nonvisibleAntQueue.Count > 0)
             {
-                GameObject visibleAnt = visibleAntQueue.Dequeue();
-                // visibleAnt.SetActive(true);
-                visibleAnt.GetComponent<MeshRenderer>().enabled = false;
-                nonvisibleAntQueue.Enqueue(visibleAnt);
+                GameObject nonvisibleAnt = nonvisibleAntQueue.Dequeue();
+                nonvisibleAnt.GetComponent<MeshRenderer>().enabled = true;
+                nonvisibleAnt.SetActive(true);
+                visibleAntQueue.Enqueue(nonvisibleAnt);
 
+                // set to nest
+                nonvisibleAnt.transform.position = Nest.transform.position + new Vector3(Random.Range(-0.1f, 0.1f), 0.01f, Random.Range(-0.1f, 0.1f));
+                nonvisibleAnt.transform.rotation = Quaternion.Euler(90, 0, 0);
+                return;
             }
 
+            // remove ant from the visible queue
+            if (visibleAntQueue.Count > 0)
+            {
+                GameObject visibleAnt = visibleAntQueue.Dequeue();
+                visibleAnt.SetActive(false);
+                visibleAnt.GetComponent<MeshRenderer>().enabled = false;
+                nonvisibleAntQueue.Enqueue(visibleAnt);
+            }
+
+            // add ant from nonvisible queue
             if (nonvisibleAntQueue.Count > 0)
             {
                 GameObject nonvisibleAnt = nonvisibleAntQueue.Dequeue();
                 nonvisibleAnt.GetComponent<MeshRenderer>().enabled = true;
-                // nonvisibleAnt.SetActive(false);
+                nonvisibleAnt.SetActive(true);
                 visibleAntQueue.Enqueue(nonvisibleAnt);
 
                 // set to nest
