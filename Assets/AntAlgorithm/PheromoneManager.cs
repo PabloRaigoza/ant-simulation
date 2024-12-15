@@ -6,9 +6,6 @@ using UnityEngine;
 public class PheromoneManager : MonoBehaviour
 
 {
-    public GameObject Ant;
-    public GameObject PheromonePrefab;
-
     public float depositInterval = 0.5f;
     private float timer = 0f;
     public Queue<GameObject> visblePheromoneQueue = new Queue<GameObject>();
@@ -25,16 +22,13 @@ public class PheromoneManager : MonoBehaviour
         // Create all pheromones and hide them
         for (int i = 0; i < maxPheromones; i++)
         {
-            GameObject pheromoneObject = Instantiate(PheromonePrefab);
-            Pheromone pheromone = pheromoneObject.GetComponent<Pheromone>();
+            // create a small sphere as a pheromone object
+            GameObject pheromoneObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            pheromoneObject.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            pheromoneObject.GetComponent<Renderer>().material.color = Color.yellow;
+            pheromoneObject.GetComponent<Renderer>().enabled = false; //TODO: hide the pheromone object
+            pheromoneObject.AddComponent<Pheromone>();
 
-            // create pheromone object and hide it
-            if (pheromone == null)
-            {
-                pheromone = pheromoneObject.AddComponent<Pheromone>();
-            }
-            pheromone.Initialize(Vector3.zero, Color.yellow, 0.1f);
-            pheromoneObject.GetComponent<Renderer>().enabled = false;
 
             // Collision logic for ant to detect pheromone
             pheromoneObject.tag = "Pheromone";
@@ -45,7 +39,6 @@ public class PheromoneManager : MonoBehaviour
             SphereCollider collider = pheromoneObject.GetComponent<SphereCollider>();
             collider.isTrigger = true;
             collider.radius = 0.5f;
-
 
 
             nonvisiblePheromoneQueue.Enqueue(pheromoneObject);
@@ -76,7 +69,7 @@ public class PheromoneManager : MonoBehaviour
 
                 GameObject nonVisPheromone = nonvisiblePheromoneQueue.Dequeue();
                 nonVisPheromone.GetComponent<Renderer>().enabled = true;
-                nonVisPheromone.transform.position = Ant.transform.position;
+                nonVisPheromone.transform.position = gameObject.transform.position;
                 visblePheromoneQueue.Enqueue(nonVisPheromone);
                 numVisiblePheromones++;
 

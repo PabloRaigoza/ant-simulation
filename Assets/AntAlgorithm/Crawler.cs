@@ -47,12 +47,13 @@ public class MeshCrawler : MonoBehaviour
 
     [NonSerialized] private List<Contact> m_contacts = new List<Contact>();
 
-    [SerializeField] public PheromoneManager pheromoneManager;
     [SerializeField] public GameObject nest;
+
+    private PheromoneManager pheromoneManager;
 
     private GameObject Pheromone2Follow;
     private Vector3 FoodDir;
-    private GameObject foodCube; // tiny cube to simulare food
+    private GameObject foodCube; // tiny cube to simulate food
 
     private AntState state = AntState.SEARCHING;
 
@@ -68,6 +69,51 @@ public class MeshCrawler : MonoBehaviour
     {
         CreateCollider();
         UpdateTopology();
+        pheromoneManager = GetComponent<PheromoneManager>();
+    }
+
+    /* Creates a mesh collider that is used to collide with scent and pheromones */
+    public void CreateCollider()
+    {
+        SphereCollider sphereCollider = gameObject.AddComponent<SphereCollider>();
+        sphereCollider.radius = 0.1f;
+        sphereCollider.isTrigger = false;
+
+        // rigid body
+        Rigidbody rb = gameObject.AddComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.isKinematic = true;
+    }
+
+    /* Updates support mesh */
+    private void UpdateTopology()
+    {
+
+        m_xform = (m_support != null) ? m_support.transform : null;
+
+        m_filter = (m_xform != null) ? m_xform.GetComponent<MeshFilter>() : null;
+
+        m_mesh = (m_filter != null) ? m_filter.sharedMesh : null;
+
+        m_verts = (m_mesh != null) ? m_mesh.vertices : null;
+
+        m_tris = (m_mesh != null) ? m_mesh.triangles : null;
+
+        m_normals = (m_mesh != null) ? m_mesh.normals : null;
+
+        m_tri = -1;
+    }
+
+
+    private void Update()
+    {
+        // if mesh not visible then return
+        if (gameObject.GetComponent<MeshRenderer>().enabled == true)
+        {
+            Debug.Log("State: " + state);
+            UpdateTopology();
+            Crawl();
+        }
     }
 
     private void Crawl()
@@ -175,79 +221,10 @@ public class MeshCrawler : MonoBehaviour
 
     }
 
-    private void Update()
-    {
-        Debug.Log("State: " + state);
-        UpdateTopology();
-        Crawl();
-    }
-
-
 
     /******** FUNCTION TO CHANGE STATE ********/
 
-
-    public void FoodScentDetected(Vector3 foodDir)
-    {
-        if (state == AntState.SEARCHING)
-        {
-            // Debug.Log("SEARCHING -> NAV_TO_FOOD_W_SCENT");
-            FoodDir = foodDir;
-            state = AntState.NAV_TO_FOOD_W_SCENT;
-        }
-    }
-
-    public void PheromoneDetected(GameObject pheromone)
-    {
-        if (state == AntState.SEARCHING)
-        {
-            // Debug.Log("SEARCHING -> NAV_TO_FOOD_w_PHEROMONE");
-            state = AntState.NAV_TO_FOOD_W_PHEROMONE;
-            Pheromone2Follow = pheromone;
-        }
-    }
-
-    public void FoodReached()
-    {
-        // Debug.Log("NAV_TO_FOOD -> RETURNING_TO_NEST");
-        state = AntState.RETURNING_TO_NEST;
-
-        // create a little 3d obj box to sim the food and place on ant in ant cooridate system
-        foodCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        foodCube.transform.parent = transform;
-        foodCube.transform.localPosition = new Vector3(0.0f, 0.3f, 0.0f);
-        foodCube.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-        foodCube.transform.localRotation = Quaternion.Euler(3.2f, -86.8f, 106.3f);
-
-        // start pheromone trail
-        pheromoneManager.startLayPheromone();
-
-    }
-
-    public void NestReached()
-    {
-        // Debug.Log("RETURNING_TO_NEST -> SEARCHING");
-        state = AntState.SEARCHING;
-
-        // destroy the food cube
-        Destroy(foodCube);
-
-        // stop pheromone trail
-        pheromoneManager.stopLayPheromone();
-    }
-
-    public void CreateCollider()
-    {
-        SphereCollider sphereCollider = gameObject.AddComponent<SphereCollider>();
-        sphereCollider.radius = 0.1f;
-        sphereCollider.isTrigger = false;
-
-        // rigid body
-        Rigidbody rb = gameObject.AddComponent<Rigidbody>();
-        rb.useGravity = false;
-        rb.isKinematic = true;
-    }
-
+    /* handler for collision trigger event detected */
     public void OnTriggerEnter(Collider other)
     {
         // Food collision handling
@@ -271,29 +248,62 @@ public class MeshCrawler : MonoBehaviour
         }
     }
 
-    /************* CODE TO SUPPORT RAYCAST CRAWLING *************/
-    private GameObject support { set { if (m_support != value) { m_support = value; UpdateTopology(); } } }
-
-    /* Updates support mesh */
-    private void UpdateTopology()
+    /* Update state from SEARCHING -> NAV_TO_FOOD_W_SCENT  */
+    public void FoodScentDetected(Vector3 foodDir)
     {
+        if (state == AntState.SEARCHING)
+        {
+            // Debug.Log("SEARCHING -> NAV_TO_FOOD_W_SCENT");
+            FoodDir = foodDir;
+            state = AntState.NAV_TO_FOOD_W_SCENT;
+        }
+    }
 
-        m_xform = (m_support != null) ? m_support.transform : null;
+    /* Update state from SEARCHING -> NAV_TO_FOOD_W_PHEROMONE  */
+    public void PheromoneDetected(GameObject pheromone)
+    {
+        if (state == AntState.SEARCHING)
+        {
+            // Debug.Log("SEARCHING -> NAV_TO_FOOD_w_PHEROMONE");
+            state = AntState.NAV_TO_FOOD_W_PHEROMONE;
+            Pheromone2Follow = pheromone;
+        }
+    }
 
-        m_filter = (m_xform != null) ? m_xform.GetComponent<MeshFilter>() : null;
+    /* Update state from NAV_TO_FOOD_W_SCENT -> RETURNING_TO_NEST  */
+    public void FoodReached()
+    {
+        // Debug.Log("NAV_TO_FOOD -> RETURNING_TO_NEST");
+        state = AntState.RETURNING_TO_NEST;
 
-        m_mesh = (m_filter != null) ? m_filter.sharedMesh : null;
+        // create a little 3d obj box to sim the food and place on ant in ant cooridate system
+        foodCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        foodCube.transform.parent = transform;
+        foodCube.transform.localPosition = new Vector3(0.0f, 0.3f, 0.0f);
+        foodCube.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        foodCube.transform.localRotation = Quaternion.Euler(3.2f, -86.8f, 106.3f);
 
-        m_verts = (m_mesh != null) ? m_mesh.vertices : null;
+        // start pheromone trail
+        pheromoneManager.startLayPheromone();
 
-        m_tris = (m_mesh != null) ? m_mesh.triangles : null;
+    }
 
-        m_normals = (m_mesh != null) ? m_mesh.normals : null;
+    /* Update state from RETURNING_TO_NEST -> SEARCHING  */
+    public void NestReached()
+    {
+        // Debug.Log("RETURNING_TO_NEST -> SEARCHING");
+        state = AntState.SEARCHING;
 
-        m_tri = -1;
+        // destroy the food cube
+        Destroy(foodCube);
+
+        // stop pheromone trail
+        pheromoneManager.stopLayPheromone();
     }
 
 
+    /************* CODE TO SUPPORT RAYCAST CRAWLING *************/
+    private GameObject support { set { if (m_support != value) { m_support = value; UpdateTopology(); } } }
 
     /* Determines if point [p] is inside triangle at the index [tri] of 
     an array of triangle [tris] */

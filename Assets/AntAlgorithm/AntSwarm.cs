@@ -9,10 +9,9 @@ public class AntSwarm : MonoBehaviour
     [SerializeField] private GameObject antPrefab;
     [SerializeField] private GameObject Nest;
     [SerializeField] private GameObject m_support;
-    [SerializeField] private GameObject PheromonePrefab;
 
-    [SerializeField] private int numAnts = 20;
-    [SerializeField] private float depositInterval = 0.5f;
+    [SerializeField] private int numAnts = 10;
+    [SerializeField] private float depositInterval = 5.0f;
     [SerializeField] private float timer = 0f;
 
     private Queue<GameObject> visibleAntQueue = new Queue<GameObject>();
@@ -26,44 +25,59 @@ public class AntSwarm : MonoBehaviour
         {
             // Create ant object and hide it
             GameObject antObject = Instantiate(antPrefab);
-            MeshCrawler crawler = antObject.GetComponent<MeshCrawler>();
 
-            if (crawler == null)
-            {
-                crawler = antObject.AddComponent<MeshCrawler>();
+            // Crawler component for the ant
+            MeshCrawler crawler = antObject.AddComponent<MeshCrawler>();
+            crawler.m_support = m_support;
+            crawler.nest = Nest;
 
-                // set m_support for the crawler component
-                crawler.m_support = m_support;
+            // Pheromone manager component for the ant
+            antObject.AddComponent<PheromoneManager>();
 
-                // create a new pheromone manager object and assign pheromone manager component
-                GameObject pheromoneManagerObject = new GameObject();
-                PheromoneManager pheromoneManager = pheromoneManagerObject.AddComponent<PheromoneManager>();
-                pheromoneManager.Ant = antObject;
-                pheromoneManager.PheromonePrefab = PheromonePrefab;
-                pheromoneManager.depositInterval = 0.1f;
-                
-                antObject.GetComponent<MeshCrawler>().pheromoneManager = pheromoneManager;
-
-                // set the nest
-                crawler.nest = Nest;
-
-
-            }
 
             // initiailize to a random position on the mesh
-            antObject.transform.position = Nest.transform.position + new Vector3(Random.Range(-0.1f, 0.1f), 0.05f, Random.Range(-0.1f, 0.1f));
+            antObject.transform.position = Nest.transform.position + new Vector3(Random.Range(-0.1f, 0.1f), 0.01f, Random.Range(-0.1f, 0.1f));
             // rotate 90 degrees pitch
             antObject.transform.rotation = Quaternion.Euler(90, 0, 0);
 
-            // scale the ant
+            // add renderer to the ant
+            MeshRenderer renderer = antObject.AddComponent<MeshRenderer>();
+            renderer.enabled = false;
 
-
+            // add ant to the nonvisible queue
+            nonvisibleAntQueue.Enqueue(antObject);
+            // antObject.SetActive(false);
         }
     }
 
     // Update is called once per frame
     void Update()
     {
+        timer += Time.deltaTime;
+        if (timer >= depositInterval)
+        {
+            timer = 0f;
 
+            if (visibleAntQueue.Count >= numAnts)
+            {
+                GameObject visibleAnt = visibleAntQueue.Dequeue();
+                // visibleAnt.SetActive(true);
+                visibleAnt.GetComponent<MeshRenderer>().enabled = false;
+                nonvisibleAntQueue.Enqueue(visibleAnt);
+
+            }
+
+            if (nonvisibleAntQueue.Count > 0)
+            {
+                GameObject nonvisibleAnt = nonvisibleAntQueue.Dequeue();
+                nonvisibleAnt.GetComponent<MeshRenderer>().enabled = true;
+                // nonvisibleAnt.SetActive(false);
+                visibleAntQueue.Enqueue(nonvisibleAnt);
+
+                // set to nest
+                nonvisibleAnt.transform.position = Nest.transform.position + new Vector3(Random.Range(-0.1f, 0.1f), 0.01f, Random.Range(-0.1f, 0.1f));
+                nonvisibleAnt.transform.rotation = Quaternion.Euler(90, 0, 0);
+            }
+        }
     }
 }
