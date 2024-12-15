@@ -6,7 +6,7 @@ using UnityEngine;
 public class PheromoneManager : MonoBehaviour
 
 {
-    public float depositInterval = 0.5f;
+    public float depositInterval = 0.1f;
     private float timer = 0f;
     public Queue<GameObject> visblePheromoneQueue = new Queue<GameObject>();
     private Queue<GameObject> nonvisiblePheromoneQueue = new Queue<GameObject>();
@@ -43,6 +43,8 @@ public class PheromoneManager : MonoBehaviour
 
             nonvisiblePheromoneQueue.Enqueue(pheromoneObject);
 
+            pheromoneObject.name = "Pheromone " + i;
+
         }
     }
 
@@ -76,6 +78,7 @@ public class PheromoneManager : MonoBehaviour
                 // set the next pheromone to food
                 if (numVisiblePheromones > 1)
                 {
+                    Debug.Log("Setting next pheromone to food");
                     GameObject prevPheromone = visblePheromoneQueue.ToArray()[numVisiblePheromones - 2];
                     Pheromone currPheromeComponent = nonVisPheromone.GetComponent<Pheromone>();
                     currPheromeComponent.SetNextPheromoneToFood(prevPheromone);

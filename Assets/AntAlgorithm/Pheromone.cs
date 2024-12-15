@@ -5,7 +5,7 @@ using UnityEngine;
 public class Pheromone : MonoBehaviour
 {
 
-    private GameObject NextPheromoneToFood;
+    private GameObject NextPheromoneToFood = null;
 
     public void Initialize(Vector3 position, Color color, float scale)
     {

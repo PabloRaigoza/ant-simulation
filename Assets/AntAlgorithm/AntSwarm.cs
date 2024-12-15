@@ -48,6 +48,8 @@ public class AntSwarm : MonoBehaviour
             // add ant to the nonvisible queue
             nonvisibleAntQueue.Enqueue(antObject);
             antObject.SetActive(false);
+
+            antObject.name = "Ant " + i;
         }
     }
 
