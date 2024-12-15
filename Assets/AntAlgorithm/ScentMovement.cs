@@ -56,14 +56,14 @@ public class ScentMovement : MonoBehaviour
         }
 
         // update particle and collision object according to other's tag
-        if (other.tag == "Ant")
-        {
-            particles[collisionIdx].startColor = Color.green;
-            if (other.GetComponent<MeshCrawler>() != null)
-            {
-                other.GetComponent<MeshCrawler>().FoodScentDetected(Food.transform.position);
-            }
-        }
+        // if (other.tag == "Ant")
+        // {
+        //     particles[collisionIdx].startColor = Color.green;
+        //     if (other.GetComponent<MeshCrawler>() != null)
+        //     {
+        //         other.GetComponent<MeshCrawler>().FoodScentDetected(Food.transform.position);
+        //     }
+        // }
 
 
         ps.SetParticles(particles, numParticlesAlive);
