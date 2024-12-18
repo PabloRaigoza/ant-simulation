@@ -1,0 +1,109 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6CD00528-6C3A-C058-C4F9-8D408390B21E}|Assembly-CSharp.csproj|e:\\documents\\dev\\opt-ant-simulation 2024-12-16_10-42-06\\opt-ant-simulation\\assets\\scripts\\antmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6CD00528-6C3A-C058-C4F9-8D408390B21E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\antmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6CD00528-6C3A-C058-C4F9-8D408390B21E}|Assembly-CSharp.csproj|e:\\documents\\dev\\opt-ant-simulation 2024-12-16_10-42-06\\opt-ant-simulation\\assets\\scripts\\terraingenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6CD00528-6C3A-C058-C4F9-8D408390B21E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\terraingenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6CD00528-6C3A-C058-C4F9-8D408390B21E}|Assembly-CSharp.csproj|E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\assets\\scripts\\foodmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6CD00528-6C3A-C058-C4F9-8D408390B21E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\foodmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{95EECA24-1890-D321-2F66-412D2F2EA90F}|Assembly-CSharp-Editor.csproj|E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\assets\\editor\\terraingeneratoreditor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{95EECA24-1890-D321-2F66-412D2F2EA90F}|Assembly-CSharp-Editor.csproj|solutionrelative:assets\\editor\\terraingeneratoreditor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6CD00528-6C3A-C058-C4F9-8D408390B21E}|Assembly-CSharp.csproj|E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\assets\\scripts\\pheromone.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6CD00528-6C3A-C058-C4F9-8D408390B21E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\pheromone.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 145,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "FoodManager.cs",
+              "DocumentMoniker": "E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\Assets\\Scripts\\FoodManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\FoodManager.cs",
+              "ToolTip": "E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\Assets\\Scripts\\FoodManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\FoodManager.cs",
+              "ViewState": "AgIAADgAAAAAAAAAAAAAAEgAAABPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-17T21:37:15.265Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "TerrainGenerator.cs",
+              "DocumentMoniker": "E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\Assets\\Scripts\\TerrainGenerator.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\TerrainGenerator.cs",
+              "ToolTip": "E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\Assets\\Scripts\\TerrainGenerator.cs",
+              "RelativeToolTip": "Assets\\Scripts\\TerrainGenerator.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAIwCoAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-17T21:22:58.508Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "TerrainGeneratorEditor.cs",
+              "DocumentMoniker": "E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\Assets\\Editor\\TerrainGeneratorEditor.cs",
+              "RelativeDocumentMoniker": "Assets\\Editor\\TerrainGeneratorEditor.cs",
+              "ToolTip": "E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\Assets\\Editor\\TerrainGeneratorEditor.cs",
+              "RelativeToolTip": "Assets\\Editor\\TerrainGeneratorEditor.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-17T21:22:16.289Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Pheromone.cs",
+              "DocumentMoniker": "E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\Assets\\Scripts\\Pheromone.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Pheromone.cs",
+              "ToolTip": "E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\Assets\\Scripts\\Pheromone.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Pheromone.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-17T16:34:53.934Z"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 255,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AntManager.cs",
+              "DocumentMoniker": "E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\Assets\\Scripts\\AntManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AntManager.cs",
+              "ToolTip": "E:\\Documents\\dev\\Opt-Ant-Simulation 2024-12-16_10-42-06\\Opt-Ant-Simulation\\Assets\\Scripts\\AntManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AntManager.cs",
+              "ViewState": "AgIAAEoDAAAAAAAAAAAewC4DAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-17T16:34:20.666Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

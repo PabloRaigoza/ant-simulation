@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 26
-  productGUID: 0301d3d698801e34abb9f690f62f8aa3
+  productGUID: 9a2367c8b3f1cb1429e486199f4d6037
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: Ants
+  productName: Opt-Ant-Simulation
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -677,14 +677,14 @@ PlayerSettings:
   apiCompatibilityLevelPerPlatform: {}
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: Ants
+  metroPackageName: Opt-Ant-Simulation
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: Ants
+  metroApplicationDescription: Opt-Ant-Simulation
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -754,10 +754,10 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: ae4f1568-1aa4-4ddc-afc9-2ae836979a0e
+  cloudProjectId: 3967476e-17f9-491a-8c15-47911a8e70ea
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Ants
+  projectName: Opt-Ant-Simulation 2024-12-16_10-42-06
   organizationId: kai_2302
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
